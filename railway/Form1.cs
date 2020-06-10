@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.Common;
 using Excel = Microsoft.Office.Interop.Excel;
-
 
 namespace test_railway
 {
     public partial class Form1 : Form
     {
-
         SqlConnection conn;
+        Excel.Application ex = new Microsoft.Office.Interop.Excel.Application();
 
         public Form1()
         {
@@ -84,9 +77,8 @@ namespace test_railway
                     int idRec = 0;
                     while (reader.Read())
                     {
-                        // Индекс столбца Emp_ID в команде SQL.
                         idRec++;
-                        string station = reader.GetString(0); // 0
+                        string station = reader.GetString(0);
                         int listNO = Convert.ToInt32(reader.GetValue(1));
                         long carNO = Convert.ToInt64(reader.GetValue(2));
                         int builtYear = Convert.ToInt32(reader.GetValue(3));
@@ -97,6 +89,11 @@ namespace test_railway
                         string isLoaded = reader.GetString(8);
                         string isWorking = reader.GetString(9);
                         string workState = reader.GetString(10);
+
+
+
+
+
 
                         //Индекс столбца Mng_Id в команде SQL.
                         //int mngIdIndex = reader.GetOrdinal("Mng_Id");
@@ -112,22 +109,44 @@ namespace test_railway
                         //Console.WriteLine("EmpName:" + empName);
                         //Console.WriteLine("MngId:" + mngId);
 
-                        MessageBox.Show(
-                            idRec + " " +
-                            station + " " +
-                            listNO + " " +
-                            carNO + " " +
-                            builtYear + " " +
-                            carType + " " +
-                            carLoc + " " +
-                            admCode + " " +
-                            owner + " " +
-                            isLoaded + " " +
-                            isWorking + " " +
-                            workState);
+                        //MessageBox.Show(
+                        //    idRec + " " +
+                        //    station + " " +
+                        //    listNO + " " +
+                        //    carNO + " " +
+                        //    builtYear + " " +
+                        //    carType + " " +
+                        //    carLoc + " " +
+                        //    admCode + " " +
+                        //    owner + " " +
+                        //    isLoaded + " " +
+                        //    isWorking + " " +
+                        //    workState);
                     }
                 }
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            ex.SheetsInNewWorkbook = 1;
+            Excel.Workbook workBook = ex.Workbooks.Add(Type.Missing);
+            Excel.Worksheet sheet = (Excel.Worksheet)ex.Worksheets.get_Item(1);
+            sheet.Name = "Отчет";
+
+            for (int i = 1; i <= 3; i++) // строки
+            {
+                for (int j = 1; j <= 4; j++) // столбцы
+                    sheet.Cells[i, j] = String.Format("хуяк {0} {1}", i, j);
+            }
+
+            // Выделяем диапазон ячеек от H1 до K1
+            Excel.Range _excelCells1 = (Excel.Range)sheet.get_Range("A1", "J1").Cells;
+            // Производим объединение
+            _excelCells1.Merge(Type.Missing);
+            sheet.Cells[1, 1] = "Общие";
+
+            ex.Visible = true;
         }
     }
 }
