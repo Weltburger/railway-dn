@@ -4,13 +4,20 @@ using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.Data.Common;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.IO;
+using Aspose.Cells.Drawing;
+using System.Collections;
 
 namespace test_railway
 {
     public partial class Form1 : Form
     {
         SqlConnection conn;
-        string station;
+        SqlCommand cmd;
+        string sql;
+
+        string stationESR;
+        string stationName;
         int listNO;
         long carNO;
         int builtYear;
@@ -21,11 +28,67 @@ namespace test_railway
         string isLoaded;
         string isWorking;
         string workState;
-        Excel.Application ex = new Microsoft.Office.Interop.Excel.Application();
+
+        string esrStation;
+        string listNum;
+
+        Excel.Application excelApp;
+        Excel.Workbook workBook;
+        Excel.Worksheet sheet;
+        Excel.Range title;
+        Excel.Range columnsTable;
+        Excel.Range valuesTable;
 
         public Form1()
         {
             InitializeComponent();
+
+            excelApp = new Microsoft.Office.Interop.Excel.Application();
+            workBook = excelApp.Workbooks.Add(Type.Missing);
+            sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(1);
+            excelApp.SheetsInNewWorkbook = 1;
+            excelApp.DisplayAlerts = false;
+            sheet.Name = "Отчет";
+
+            title = (Excel.Range)sheet.get_Range("A1", "J1").Cells;
+            title.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+            title.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+            title.Font.Bold = true;
+            title.Merge(Type.Missing);
+
+            columnsTable = (Excel.Range)sheet.get_Range("A2", "J2").Cells;
+            columnsTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+            columnsTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+            columnsTable.WrapText = true; // перенос текста в ячейках
+            columnsTable.Borders.ColorIndex = 0;
+            columnsTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+            columnsTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+
+            sheet.Cells[1, 1] = "Переписной лист №";
+            sheet.Cells[2, 1] = "№ п/п";
+            sheet.Cells[2, 2] = "Номер вагона";
+            sheet.Cells[2, 3] = "Год постройки";
+            sheet.Cells[2, 4] = "Род вагона";
+            sheet.Cells[2, 5] = "Дислокация";
+            sheet.Cells[2, 6] = "Код страны-собств.";
+            sheet.Cells[2, 7] = "Собственник вагона";
+            sheet.Cells[2, 8] = "Состояние";
+            sheet.Cells[2, 9] = "Парк";
+            sheet.Cells[2, 10] = "Категория НРП";
+
+            sheet.Rows.RowHeight = 25;
+            sheet.Rows[1].RowHeight = 40;
+            sheet.Rows[2].RowHeight = 50;
+            sheet.Columns[1].ColumnWidth = 4;
+            sheet.Columns[2].ColumnWidth = 9;
+            sheet.Columns[3].ColumnWidth = 11;
+            sheet.Columns[4].ColumnWidth = 7;
+            sheet.Columns[5].ColumnWidth = 13;
+            sheet.Columns[6].ColumnWidth = 8;
+            sheet.Columns[7].ColumnWidth = 14;
+            sheet.Columns[8].ColumnWidth = 14;
+            sheet.Columns[9].ColumnWidth = 12;
+            sheet.Columns[10].ColumnWidth = 14;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -45,7 +108,7 @@ namespace test_railway
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string sql = "select st.NAME as 'Станция (для заголовка)', " +
+            sql = "select st.ESR, st.NAME as 'Станция (для заголовка)', " +
                 "LIST_NO as 'Номер ПЛ (для заголовка)'," +
                 "CAR_NO as 'Номер вагона', " +
                 "BUILT_YEAR as 'Год постройки', " +
@@ -72,39 +135,44 @@ namespace test_railway
                 "END as 'Категория НРП'" +
                 "from CAR_CENSUS_LISTS ccl " +
                 "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE st.ESR = 480403 AND ccl.LIST_NO = 1";
+                "WHERE st.ESR = " + esrStation + " and ccl.LIST_NO = " + listNum + "";
 
-            // Создать объект Command.
-            SqlCommand cmd = new SqlCommand();
-
-            // Сочетать Command с Connection.
-            cmd.Connection = conn;
             cmd.CommandText = sql;
 
             using (DbDataReader reader = cmd.ExecuteReader())
             {
+                int idRec = 0;
                 if (reader.HasRows)
                 {
-                    int idRec = 0;   
                     while (reader.Read())
-                    {                      
+                    {
                         idRec++;
-                        station = reader.GetString(0);
-                        listNO = Convert.ToInt32(reader.GetValue(1));
-                        carNO = Convert.ToInt64(reader.GetValue(2));
-                        builtYear = Convert.ToInt32(reader.GetValue(3));
-                        carType = reader.GetString(4);
-                        carLoc = reader.GetString(5);
-                        admCode = Convert.ToInt32(reader.GetValue(6));
-                        owner = reader.GetString(7);
-                        isLoaded = reader.GetString(8);
-                        isWorking = reader.GetString(9);
-                        workState = reader.GetString(10);
+                        stationESR = reader.GetValue(0).ToString();
+                        stationName = reader.GetString(1);
+                        listNO = Convert.ToInt32(reader.GetValue(2));
+                        carNO = Convert.ToInt64(reader.GetValue(3));
+                        builtYear = Convert.ToInt32(reader.GetValue(4));
+                        carType = reader.GetString(5);
+                        carLoc = reader.GetString(6);
+                        admCode = Convert.ToInt32(reader.GetValue(7));
+                        owner = reader.GetString(8);
+                        isLoaded = reader.GetString(9);
+                        isWorking = reader.GetString(10);
+                        workState = reader.GetString(11);
 
+                        sheet.Cells[1, 1] = "Переписной лист №" + listNO + " станция " + stationName + " (" + stationESR + ")";
+                        sheet.Cells[2 + idRec, 1] = idRec;
+                        sheet.Cells[2 + idRec, 2] = carNO;
+                        sheet.Cells[2 + idRec, 3] = builtYear;
+                        sheet.Cells[2 + idRec, 4] = carType;
+                        sheet.Cells[2 + idRec, 5] = carLoc;
+                        sheet.Cells[2 + idRec, 6] = admCode;
+                        sheet.Cells[2 + idRec, 7] = owner;
+                        sheet.Cells[2 + idRec, 8] = isLoaded;
+                        sheet.Cells[2 + idRec, 9] = isWorking;
+                        sheet.Cells[2 + idRec, 10] = workState;
 
-
-
-
+                        //MessageBox.Show((2 + idRec).ToString());
 
                         //Индекс столбца Mng_Id в команде SQL.
                         //int mngIdIndex = reader.GetOrdinal("Mng_Id");
@@ -134,64 +202,148 @@ namespace test_railway
                         //    isWorking + " " +
                         //    workState);
                     }
+
+                    valuesTable = (Excel.Range)sheet.get_Range("A3", "J" + (idRec + 2).ToString()).Cells;
+                    valuesTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+                    valuesTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+                    valuesTable.WrapText = true; // перенос текста в ячейках
+                    valuesTable.Borders.ColorIndex = 0;
+                    valuesTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                    valuesTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+
+                    // Реализовать сохранение документов по каждому номеру переписного листа - listNO
+
+                    SaveFileDialog fileDialog = new SaveFileDialog();
+                    fileDialog.FileName = "Переписной лист №" + listNO + " - станция " + stationName + " (" + stationESR + ").xlsx";
+                    if (fileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        excelApp.Application.ActiveWorkbook.SaveAs(
+                            fileDialog.FileName,
+                            Type.Missing,
+                            Type.Missing,
+                            Type.Missing,
+                            Type.Missing,
+                            Type.Missing,
+                            Excel.XlSaveAsAccessMode.xlShared,
+                            Type.Missing,
+                            Type.Missing,
+                            Type.Missing,
+                            Type.Missing,
+                            Type.Missing);
+
+                        if (MessageBox.Show("Файл успешно сохранен!\n" +
+                            "\nОткрыть этот файл?", "Сообщение", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            excelApp.Visible = true;
+                        }
+                        else
+                        {
+                            excelApp.Application.ActiveWorkbook.Close(true, Type.Missing, Type.Missing);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Файл не был сохранен...");
+                    }
                 }
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            ex.SheetsInNewWorkbook = 1;
-            ex.DisplayAlerts = false;
-            Excel.Workbook workBook = ex.Workbooks.Add(Type.Missing);
-            Excel.Worksheet sheet = (Excel.Worksheet)ex.Worksheets.get_Item(1);
-            sheet.Name = "Отчет";
+            conn = DBUtils.GetDBConnection();
+            conn.Open();
 
-            for (int i = 1; i <= 3; i++) // строки
+            if (conn.State == ConnectionState.Open)
             {
-                for (int j = 1; j <= 4; j++) // столбцы
-                    sheet.Cells[i, j] = String.Format("хуяк {0} {1}", i, j);
+                MessageBox.Show("всьо чьотка!");
+
+                cmd = new SqlCommand();
+
+                sql = "select NAME, ESR FROM STATIONS";
+
+                cmd.Connection = conn;
+                cmd.CommandText = sql;
+
+                listView1.View = View.Details;
+                listView1.ListViewItemSorter = new ListViewColumnComparer(0);
+
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            listView1.Items.Add(new ListViewItem(
+                                new string[] 
+                                { 
+                                    reader.GetString(0),
+                                    reader.GetValue(1).ToString()
+                                }));
+
+                            //stations.Items.Add(reader.GetString(0) + " ("+ reader.GetValue(1).ToString() + ")");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("ашыбачька...");
+            }
+        }
+
+        class ListViewColumnComparer : IComparer
+        {
+            public int ColumnIndex { get; set; }
+
+            public ListViewColumnComparer(int columnIndex)
+            {
+                ColumnIndex = columnIndex;
             }
 
-            // Выделяем диапазон ячеек от H1 до K1
-            Excel.Range _excelCells1 = (Excel.Range)sheet.get_Range("A1", "J1").Cells;
-            _excelCells1.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            _excelCells1.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+            public int Compare(object x, object y)
+            {
+                try
+                {
+                    return String.Compare(
+                    ((ListViewItem)x).SubItems[ColumnIndex].Text,
+                    ((ListViewItem)y).SubItems[ColumnIndex].Text);
+                }
+                catch (Exception) // если вдруг столбец пустой (или что-то пошло не так)
+                {
+                    return 0;
+                }
+            }
+        }
 
-            Excel.Range _excelCells2 = (Excel.Range)sheet.get_Range("A2", "J2").Cells;
-            _excelCells2.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            _excelCells2.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            _excelCells2.WrapText = true; // перенос текста в ячейках
+        private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            lists.Items.Clear();
+            esrStation = listView1.Items[e.ItemIndex].SubItems[1].Text;
 
-            sheet.Columns[1].ColumnWidth = 4;
-            sheet.Columns[2].ColumnWidth = 8;
-            sheet.Columns[3].ColumnWidth = 11;
-            sheet.Columns[4].ColumnWidth = 8;
-            sheet.Columns[5].ColumnWidth = 12;
-            sheet.Columns[6].ColumnWidth = 8;
-            sheet.Columns[7].ColumnWidth = 12;
-            sheet.Columns[8].ColumnWidth = 11;
-            sheet.Columns[9].ColumnWidth = 6;
-            sheet.Columns[10].ColumnWidth = 11;
+            sql = "select LIST_NO from CAR_CENSUS_LISTS ccl " +
+                "INNER JOIN STATIONS st on st.ESR = ccl.LOCATION_ESR " +
+                "where st.ESR = "+ esrStation +" " +
+                "group by LIST_NO";
 
-            _excelCells2.Borders.ColorIndex = 0;
-            _excelCells2.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            _excelCells2.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
 
-            // Производим объединение
-            _excelCells1.Merge(Type.Missing);
-            sheet.Cells[1, 1] = "Переписной лист №";
-            sheet.Cells[2, 1] = "№ п/п";
-            sheet.Cells[2, 2] = "Номер вагона";
-            sheet.Cells[2, 3] = "Год постройки";
-            sheet.Cells[2, 4] = "Род вагона";
-            sheet.Cells[2, 5] = "Дислокация";
-            sheet.Cells[2, 6] = "Код страны-собств.";
-            sheet.Cells[2, 7] = "Собственник вагона";
-            sheet.Cells[2, 8] = "Состояние";
-            sheet.Cells[2, 9] = "Парк";
-            sheet.Cells[2, 10] = "Категория НРП";
+            using (DbDataReader reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        lists.Items.Add(reader.GetValue(0).ToString());
+                    }
+                }
+            }
+        }
 
-            ex.Visible = true;
+        private void lists_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            listNum = lists.Text;
         }
     }
 }
