@@ -131,6 +131,8 @@ namespace test_railway
         {
             ex.SheetsInNewWorkbook = 1;
             Excel.Workbook workBook = ex.Workbooks.Add(Type.Missing);
+            //Отключить отображение окон с сообщениями
+            ex.DisplayAlerts = false;
             Excel.Worksheet sheet = (Excel.Worksheet)ex.Worksheets.get_Item(1);
             sheet.Name = "Отчет";
 
@@ -142,6 +144,7 @@ namespace test_railway
 
             // Выделяем диапазон ячеек от H1 до K1
             Excel.Range _excelCells1 = (Excel.Range)sheet.get_Range("A1", "J1").Cells;
+            _excelCells1.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
             // Производим объединение
             _excelCells1.Merge(Type.Missing);
             sheet.Cells[1, 1] = "Общие";

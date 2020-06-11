@@ -8,3 +8,12 @@ C:\Users\Evgenij\Desktop\railway\obj\Debug\Railway.csproj.GenerateResource.cache
 C:\Users\Evgenij\Desktop\railway\obj\Debug\Railway.csproj.CoreCompileInputs.cache
 C:\Users\Evgenij\Desktop\railway\obj\Debug\test_railway.exe
 C:\Users\Evgenij\Desktop\railway\obj\Debug\test_railway.pdb
+H:\0Универ\(1) Практика\railway\bin\Debug\test_railway.exe.config
+H:\0Универ\(1) Практика\railway\bin\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway\bin\Debug\test_railway.pdb
+H:\0Универ\(1) Практика\railway\obj\Debug\Railway.csprojAssemblyReference.cache
+H:\0Универ\(1) Практика\railway\obj\Debug\test_railway.Form1.resources
+H:\0Универ\(1) Практика\railway\obj\Debug\test_railway.Properties.Resources.resources
+H:\0Универ\(1) Практика\railway\obj\Debug\Railway.csproj.GenerateResource.cache
+H:\0Универ\(1) Практика\railway\obj\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway\obj\Debug\test_railway.pdb
