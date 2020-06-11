@@ -1,0 +1,51 @@
+C:\Users\Evgenij\Desktop\railway\bin\Debug\test_railway.exe.config
+C:\Users\Evgenij\Desktop\railway\bin\Debug\test_railway.exe
+C:\Users\Evgenij\Desktop\railway\bin\Debug\test_railway.pdb
+C:\Users\Evgenij\Desktop\railway\obj\Debug\Railway.csprojAssemblyReference.cache
+C:\Users\Evgenij\Desktop\railway\obj\Debug\test_railway.Form1.resources
+C:\Users\Evgenij\Desktop\railway\obj\Debug\test_railway.Properties.Resources.resources
+C:\Users\Evgenij\Desktop\railway\obj\Debug\Railway.csproj.GenerateResource.cache
+C:\Users\Evgenij\Desktop\railway\obj\Debug\Railway.csproj.CoreCompileInputs.cache
+C:\Users\Evgenij\Desktop\railway\obj\Debug\test_railway.exe
+C:\Users\Evgenij\Desktop\railway\obj\Debug\test_railway.pdb
+C:\Users\Evgenij\Desktop\railway\bin\Debug\Aspose.Cells.dll
+C:\Users\Evgenij\Desktop\railway\bin\Debug\Aspose.Cells.xml
+C:\Users\Evgenij\Desktop\railway\obj\Debug\Railway.csproj.CopyComplete
+H:\0Универ\(1) Практика\railway_git\bin\Debug\test_railway.exe.config
+H:\0Универ\(1) Практика\railway_git\bin\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway_git\bin\Debug\test_railway.pdb
+H:\0Универ\(1) Практика\railway_git\bin\Debug\Aspose.Cells.dll
+H:\0Универ\(1) Практика\railway_git\bin\Debug\Aspose.Cells.xml
+H:\0Универ\(1) Практика\railway_git\obj\Debug\Railway.csprojAssemblyReference.cache
+H:\0Универ\(1) Практика\railway_git\obj\Debug\test_railway.Form1.resources
+H:\0Универ\(1) Практика\railway_git\obj\Debug\test_railway.Properties.Resources.resources
+H:\0Универ\(1) Практика\railway_git\obj\Debug\Railway.csproj.GenerateResource.cache
+H:\0Универ\(1) Практика\railway_git\obj\Debug\Railway.csproj.CopyComplete
+H:\0Универ\(1) Практика\railway_git\obj\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway_git\obj\Debug\test_railway.pdb
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\bin\Debug\test_railway.exe.config
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\bin\Debug\test_railway.exe
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\bin\Debug\test_railway.pdb
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\bin\Debug\Aspose.Cells.dll
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\bin\Debug\Aspose.Cells.xml
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\Railway.csprojAssemblyReference.cache
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\test_railway.Form1.resources
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\test_railway.Properties.Resources.resources
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\Railway.csproj.GenerateResource.cache
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\Railway.csproj.CoreCompileInputs.cache
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\Railway.csproj.CopyComplete
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\test_railway.exe
+L:\Praktika\railway-dn\railway-dn\railway-dn\railway_git\obj\Debug\test_railway.pdb
+L:\Praktika\railway-dn\railway_git\bin\Debug\test_railway.exe.config
+L:\Praktika\railway-dn\railway_git\bin\Debug\test_railway.exe
+L:\Praktika\railway-dn\railway_git\bin\Debug\test_railway.pdb
+L:\Praktika\railway-dn\railway_git\bin\Debug\Aspose.Cells.dll
+L:\Praktika\railway-dn\railway_git\bin\Debug\Aspose.Cells.xml
+L:\Praktika\railway-dn\railway_git\obj\Debug\Railway.csprojAssemblyReference.cache
+L:\Praktika\railway-dn\railway_git\obj\Debug\test_railway.Form1.resources
+L:\Praktika\railway-dn\railway_git\obj\Debug\test_railway.Properties.Resources.resources
+L:\Praktika\railway-dn\railway_git\obj\Debug\Railway.csproj.GenerateResource.cache
+L:\Praktika\railway-dn\railway_git\obj\Debug\Railway.csproj.CoreCompileInputs.cache
+L:\Praktika\railway-dn\railway_git\obj\Debug\Railway.csproj.CopyComplete
+L:\Praktika\railway-dn\railway_git\obj\Debug\test_railway.exe
+L:\Praktika\railway-dn\railway_git\obj\Debug\test_railway.pdb
