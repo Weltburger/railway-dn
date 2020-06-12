@@ -257,7 +257,7 @@ namespace test_railway
 
         public void NonWorking()
         {
-            GlobalData.excelApp = new Excel.Application();
+            //GlobalData.excelApp = new Excel.Application();
             GlobalData.excelApp.SheetsInNewWorkbook = 3;
             GlobalData.workBook = GlobalData.excelApp.Workbooks.Add(Type.Missing);
             GlobalData.excelApp.DisplayAlerts = false;
@@ -267,6 +267,9 @@ namespace test_railway
             pattern("Поврежден по акту ВУ-25", "5", 3);
 
             save();
+            
+            GlobalData.excelApp.Workbooks.Close();
+            GlobalData.excelApp.Quit();
         }
 
         private void pattern(string name, string state, int sheetNum)

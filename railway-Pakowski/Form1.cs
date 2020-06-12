@@ -7,6 +7,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.IO;
 using Aspose.Cells.Drawing;
 using System.Collections;
+using System.Diagnostics;
 
 namespace test_railway
 {
@@ -42,6 +43,8 @@ namespace test_railway
         public Form1()
         {
             InitializeComponent();
+            censusResults = new CensusResults();
+            GlobalData.excelApp = new Excel.Application();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -273,7 +276,7 @@ namespace test_railway
             }
             else if (radioButton3.Checked)
             {
-                censusResults = new CensusResults();
+                //censusResults = new CensusResults();
                 censusResults.NonWorking();
             }
         }
@@ -812,7 +815,7 @@ namespace test_railway
                         if (MessageBox.Show("Файл успешно сохранен!\n" +
                             "\nОткрыть этот файл?", "Сообщение", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         {
-                            excelApp.Visible = true;
+                            Process.Start(fileDialog.FileName);
                         }
                         else
                         {
