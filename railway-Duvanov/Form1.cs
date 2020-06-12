@@ -32,29 +32,29 @@ namespace test_railway
         string esrStation;
         string listNum;
 
-        Excel.Application excelApp;
-        Excel.Workbook workBook;
-        Excel.Worksheet sheet;
-        Excel.Range title;
-        Excel.Range columnsTable;
-        Excel.Range valuesTable;
-
+        Excel.Application excelApp;//
+        Excel.Workbook workBook;//
+        Excel.Worksheet sheet;//
+        Excel.Range title;//
+        Excel.Range columnsTable;//
+        Excel.Range valuesTable;//
+        ReportResults rptres;
         public Form1()
         {
             InitializeComponent();
-
-            excelApp = new Microsoft.Office.Interop.Excel.Application();
+            excelApp = new Excel.Application();
+            /*excelApp = new Microsoft.Office.Interop.Excel.Application();
             workBook = excelApp.Workbooks.Add(Type.Missing);
             sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(1);
             excelApp.SheetsInNewWorkbook = 1;
             excelApp.DisplayAlerts = false;
-            sheet.Name = "Отчет";
+            sheet.Name = "Отчет";//
 
             title = (Excel.Range)sheet.get_Range("A1", "J1").Cells;
             title.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
             title.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
             title.Font.Bold = true;
-            title.Merge(Type.Missing);
+            title.Merge(Type.Missing);//
 
             columnsTable = (Excel.Range)sheet.get_Range("A2", "J2").Cells;
             columnsTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
@@ -89,8 +89,135 @@ namespace test_railway
             sheet.Columns[8].ColumnWidth = 14;
             sheet.Columns[9].ColumnWidth = 12;
             sheet.Columns[10].ColumnWidth = 14;
+            */
         }
 
+        private void Types() // формирование таблицы по родам вагона
+        {
+            string ESR_SQL = "480403";
+            //int listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
+
+            excelApp.Worksheets.get_Item(1);
+            rptres.SetSheet(1, "По родам вагона");
+            rptres.CreateCarcass("По родам вагона");
+
+            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
+                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
+                "FROM CAR_CENSUS_LISTS ccl " +
+                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                "WHERE st.ESR = " + ESR_SQL +
+                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
+
+            rptres.FillCarcass();
+
+            rptres.SaveDocument(rptres.fname);
+        }
+        private void WorkingPark() // формирование таблицы по рабочему парку
+        {
+            string ESR_SQL = "480403";
+
+            excelApp.Worksheets.get_Item(1);
+            rptres.SetSheet(1, "Рабочий парк");
+            rptres.CreateCarcass("Рабочий парк");
+
+            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
+                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
+                "FROM CAR_CENSUS_LISTS ccl " +
+                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                "WHERE ccl.IS_WORKING=1 AND st.ESR = " + ESR_SQL +
+                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
+
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(2);
+
+            rptres.SetSheet(2, "Груженых");
+            rptres.CreateCarcass("Груженых");
+
+            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
+                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
+                "FROM CAR_CENSUS_LISTS ccl " +
+                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                "WHERE ccl.IS_WORKING=1 AND ccl.IS_LOADED=1 AND st.ESR = " + ESR_SQL +
+                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
+
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(3);
+
+            rptres.SetSheet(3, "Порожних");
+            rptres.CreateCarcass("Порожних");
+
+            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
+                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
+                "FROM CAR_CENSUS_LISTS ccl " +
+                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                "WHERE ccl.IS_WORKING=1  AND ccl.IS_LOADED=0 AND st.ESR = " + ESR_SQL +
+                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
+
+            rptres.FillCarcass();
+
+            rptres.SaveDocument(rptres.fname);
+        }
+
+        private void NonWorkingPark(){
+            string ESR_SQL = "480403";
+
+            excelApp.Worksheets.get_Item(1);
+            rptres.SetSheet(1, "Не рабочий парк");
+            rptres.CreateCarcass("Не рабочий парк");
+
+            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
+                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
+                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
+                "FROM CAR_CENSUS_LISTS ccl " +
+                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                "WHERE ccl.IS_WORKING = 0 AND ccl.NON_WORKING_STATE=1 AND st.ESR = "+ ESR_SQL+
+                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
+
+            rptres.FillCarcass();
+
+            rptres.SaveDocument(rptres.fname);
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             /*conn = DBUtils.GetDBConnection();
@@ -172,35 +299,6 @@ namespace test_railway
                         sheet.Cells[2 + idRec, 9] = isWorking;
                         sheet.Cells[2 + idRec, 10] = workState;
 
-                        //MessageBox.Show((2 + idRec).ToString());
-
-                        //Индекс столбца Mng_Id в команде SQL.
-                        //int mngIdIndex = reader.GetOrdinal("Mng_Id");
-                        //long? mngId = null;
-                        //if (!reader.IsDBNull(mngIdIndex))
-                        //{
-                        //    mngId = Convert.ToInt64(reader.GetValue(mngIdIndex));
-                        //}
-                        //Console.WriteLine("--------------------");
-                        //Console.WriteLine("empIdIndex:" + empIdIndex);
-                        //Console.WriteLine("EmpId:" + empId);
-                        //Console.WriteLine("EmpNo:" + empNo);
-                        //Console.WriteLine("EmpName:" + empName);
-                        //Console.WriteLine("MngId:" + mngId);
-
-                        //MessageBox.Show(
-                        //    idRec + " " +
-                        //    station + " " +
-                        //    listNO + " " +
-                        //    carNO + " " +
-                        //    builtYear + " " +
-                        //    carType + " " +
-                        //    carLoc + " " +
-                        //    admCode + " " +
-                        //    owner + " " +
-                        //    isLoaded + " " +
-                        //    isWorking + " " +
-                        //    workState);
                     }
 
                     valuesTable = (Excel.Range)sheet.get_Range("A3", "J" + (idRec + 2).ToString()).Cells;
@@ -253,7 +351,7 @@ namespace test_railway
         {
             conn = DBUtils.GetDBConnection();
             conn.Open();
-
+            //rptres.conn = conn;
             if (conn.State == ConnectionState.Open)
             {
                 MessageBox.Show("всьо чьотка!");
@@ -263,6 +361,7 @@ namespace test_railway
                 sql = "select NAME, ESR FROM STATIONS";
 
                 cmd.Connection = conn;
+                //rptres.cmd.Connection = conn;
                 cmd.CommandText = sql;
 
                 listView1.View = View.Details;
@@ -303,6 +402,7 @@ namespace test_railway
                 "group by LIST_NO";
 
             cmd.Connection = conn;
+            rptres.cmd.Connection = conn;
             cmd.CommandText = sql;
 
             using (DbDataReader reader = cmd.ExecuteReader())
@@ -324,586 +424,302 @@ namespace test_railway
 
         private void button3_Click(object sender, EventArgs e)
         {
+            rptres = new ReportResults(excelApp);
+            rptres.conn = conn;
+            rptres.cmd.Connection = conn;
             if (radioButton1.Checked)
             {
-                types();
+                Types();
             }
             else if (radioButton2.Checked)
             {
-                workingPark();
+                WorkingPark();
             }
             else if (radioButton3.Checked)
             {
-
+                NonWorkingPark();
             }
         }
 
+    }
+    public class ReportResults
+    {
+        public Excel.Application excelApp;
+        public Excel.Workbook workBook;
+        public Excel.Worksheet sheet;
+        public Excel.Range range;
+        public Excel.Sheets excelsheets;
+        public int countExcelSheets;
 
+        public SqlCommand cmd;
+        public SqlConnection conn;
+        public string sql;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        private void types() // формирование таблицы по родам вагона
+        public string fname = "";
+        public ReportResults(Excel.Application exApp)
         {
-            cmd = new SqlCommand();
-
-            int listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
-            string stationName;
-
-            Excel.Application excelApp;
-            Excel.Workbook workBook;
-            Excel.Worksheet sheet;
-            Excel.Range title;
-            Excel.Range range;
-            Excel.Range valuesTable;
-
-            //--------------------------------------------------------------------------
-
-            excelApp = new Microsoft.Office.Interop.Excel.Application();
+            excelApp = exApp;
+            excelApp.SheetsInNewWorkbook = 3;
             workBook = excelApp.Workbooks.Add(Type.Missing);
             sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(1);
-            excelApp.SheetsInNewWorkbook = 1;
             excelApp.DisplayAlerts = false;
-            sheet.Name = "По родам вагона";
-
-            title = (Excel.Range)sheet.get_Range("A1", "K1").Cells;
-            title.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            title.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            title.Font.Bold = true;
-            title.Merge(Type.Missing);
-
-            range = (Excel.Range)sheet.get_Range("A3", "A7").Cells;
-            cellsMerge(range);
-
-            //cellsMerge("B3", "B7");
-            range = (Excel.Range)sheet.get_Range("B3", "B7").Cells;
-            cellsMerge(range);
-            //cellsMerge("C3", "K4");
-            range = (Excel.Range)sheet.get_Range("C3", "K4").Cells;
-            cellsMerge(range);
-
-            //cellsMerge("C5", "C7");
-            range = (Excel.Range)sheet.get_Range("C5", "C7").Cells;
-            cellsMerge(range);
-            //cellsMerge("D5", "D7");
-            range = (Excel.Range)sheet.get_Range("D5", "D7").Cells;
-            cellsMerge(range);
-            //cellsMerge("E5", "E7");
-            range = (Excel.Range)sheet.get_Range("E5", "E7").Cells;
-            cellsMerge(range);
-            //cellsMerge("F5", "F7");
-            range = (Excel.Range)sheet.get_Range("F5", "F7").Cells;
-            cellsMerge(range);
-            //cellsMerge("G5", "G7");
-            range = (Excel.Range)sheet.get_Range("G5", "G7").Cells;
-            cellsMerge(range);
-
-            //cellsMerge("H5", "K5");
-            range = (Excel.Range)sheet.get_Range("H5", "K5").Cells;
-            cellsMerge(range);
-            //cellsMerge("H6", "H7");
-            range = (Excel.Range)sheet.get_Range("H6", "H7").Cells;
-            cellsMerge(range);
-            //cellsMerge("I6", "I7");
-            range = (Excel.Range)sheet.get_Range("I6", "I7").Cells;
-            cellsMerge(range);
-            //cellsMerge("J6", "J7");
-            range = (Excel.Range)sheet.get_Range("J6", "J7").Cells;
-            cellsMerge(range);
-            //cellsMerge("K6", "K7");
-            range = (Excel.Range)sheet.get_Range("K6", "K7").Cells;
-            cellsMerge(range);
-
-            /*valuesTable = (Excel.Range)sheet.get_Range("A8", "K25").Cells;
-            valuesTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            valuesTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            valuesTable.WrapText = true; // перенос текста в ячейках
-            valuesTable.Borders.ColorIndex = 0;
-            valuesTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            valuesTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;*/
-
-            sheet.Cells[1, 1] = "Переписной лист №"; ///////////////////////////////////////////////////////////
-            sheet.Cells[3, 1] = "№ листа";
-            sheet.Cells[3, 2] = "Всего преписано вагонов";
-            sheet.Cells[3, 3] = "По родам вагона";
-            sheet.Cells[5, 3] = "КР-20";
-            sheet.Cells[5, 4] = "ПЛ-40";
-            sheet.Cells[5, 5] = "ПВ-60";
-            sheet.Cells[5, 6] = "ЦС-70";
-            sheet.Cells[5, 7] = "ПР-90";
-            sheet.Cells[5, 8] = "в т.ч.";
-            sheet.Cells[6, 8] = "ЦМВ-93";
-            sheet.Cells[6, 9] = "ФТ-94";
-            sheet.Cells[6, 10] = "ЗРВ-95";
-            sheet.Cells[6, 11] = "МВЗ-95";
-
-
-            range = (Excel.Range)sheet.get_Range("A25", "K25").Cells;
-            range.Font.Bold = true;
-
-            sheet.Rows.RowHeight = 25;
-            sheet.Rows[1].RowHeight = 40;
-            sheet.Rows[3].RowHeight = 10;
-            sheet.Rows[4].RowHeight = 10;
-            sheet.Rows[5].RowHeight = 15;
-            sheet.Rows[6].RowHeight = 15;
-            sheet.Rows[7].RowHeight = 15;
-            sheet.Columns[1].ColumnWidth = 6;
-            sheet.Columns[2].ColumnWidth = 10;
-            sheet.Columns[3].ColumnWidth = 7;
-            sheet.Columns[4].ColumnWidth = 7;
-            sheet.Columns[5].ColumnWidth = 7;
-            sheet.Columns[6].ColumnWidth = 7;
-            sheet.Columns[7].ColumnWidth = 7;
-            sheet.Columns[8].ColumnWidth = 8;
-            sheet.Columns[9].ColumnWidth = 8;
-            sheet.Columns[10].ColumnWidth = 8;
-            sheet.Columns[11].ColumnWidth = 8;
-
-            sql = "SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE st.ESR = 480403 " +
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO";
-
-            cmd.Connection = conn;
-            cmd.CommandText = sql;
-
-            using (DbDataReader reader = cmd.ExecuteReader())
-            {
-                int idRec = 0;
-                Excel.Range rng;
-                string fname = "";
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        idRec++;
-                        ESR = Convert.ToInt32(reader.GetValue(0));
-                        stationName = reader.GetValue(1).ToString();
-                        listNO = Convert.ToInt32(reader.GetValue(2));
-                        KR20 = Convert.ToInt32(reader.GetValue(3));
-                        PL40 = Convert.ToInt32(reader.GetValue(4));
-                        PV60 = Convert.ToInt32(reader.GetValue(5));
-                        CS70 = Convert.ToInt32(reader.GetValue(6));
-                        PR90 = Convert.ToInt32(reader.GetValue(7));
-                        CMV93 = Convert.ToInt32(reader.GetValue(8));
-                        FT94 = Convert.ToInt32(reader.GetValue(9));
-                        ZRV95 = Convert.ToInt32(reader.GetValue(10));
-                        MVZ93 = Convert.ToInt32(reader.GetValue(11));
-
-                        fname = "Итоги переписи по станции " + stationName + " (" + ESR + ").xlsx";
-
-                        sheet.Cells[1, 1] = "Итоги переписи по станции " + stationName + " (" + ESR + ")"; 
-                        sheet.Cells[7 + idRec, 1] = listNO;
-                        sheet.Cells[7 + idRec, 3] = KR20;
-                        sheet.Cells[7 + idRec, 4] = PL40;
-                        sheet.Cells[7 + idRec, 5] = PV60;
-                        sheet.Cells[7 + idRec, 6] = CS70;
-                        sheet.Cells[7 + idRec, 7] = PR90;
-                        sheet.Cells[7 + idRec, 8] = CMV93;
-                        sheet.Cells[7 + idRec, 9] = FT94;
-                        sheet.Cells[7 + idRec, 10] = ZRV95;
-                        sheet.Cells[7 + idRec, 11] = MVZ93;
-
-                        rng = (Excel.Range)sheet.get_Range("C" + (7 + idRec).ToString() + ":" + "K" + (7 + idRec).ToString()).Cells;
-                        sheet.Cells[7 + idRec, 2] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-                    }
-
-                    valuesTable = (Excel.Range)sheet.get_Range("A8", "K" + (idRec + 8).ToString()).Cells;
-                    valuesTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-                    valuesTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-                    valuesTable.WrapText = true; // перенос текста в ячейках
-                    valuesTable.Borders.ColorIndex = 0;
-                    valuesTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-                    valuesTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-                    sheet.Cells[idRec + 8, 1] = "Всего";
-
-
-                    rng = (Excel.Range)sheet.get_Range("B8:B" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 2] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("C8:C" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 3] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек      
-
-                    rng = (Excel.Range)sheet.get_Range("D8:D" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 4] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("E8:E" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 5] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("F8:F" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 6] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("G8:G" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 7] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("H8:H" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 8] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("I8:I" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 9] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("J8:J" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 10] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("K8:K" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 11] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-
-                    /*//Excel.Range formulaRange = (Excel.Range)sheet.get_Range(sheet.Cells[8, 3], sheet.Cells[8, 11]);
-                    Excel.Range formulaRange = (Excel.Range)sheet.get_Range("C8", "K8").Cells;
-                    string adder = formulaRange.get_Address(1, 1, Excel.XlReferenceStyle.xlA1, Type.Missing, Type.Missing);
-
-                    //Одна ячейка как диапазон
-                    Excel.Range r = sheet.Cells[8, 2] as Excel.Range;
-                    //Задаем формулу суммы
-                    r.Formula = String.Format("=СУММ({0})", adder);*/
-
-
-                    SaveFileDialog fileDialog = new SaveFileDialog();
-                    fileDialog.FileName = fname;
-                    if (fileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        excelApp.Application.ActiveWorkbook.SaveAs(
-                            fileDialog.FileName,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Excel.XlSaveAsAccessMode.xlShared,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing);
-
-                        if (MessageBox.Show("Файл успешно сохранен!\n" +
-                            "\nОткрыть этот файл?", "Сообщение", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                        {
-                            excelApp.Visible = true;
-                        }
-                        else
-                        {
-                            excelApp.Application.ActiveWorkbook.Close(true, Type.Missing, Type.Missing);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Файл не был сохранен...");
-                    }
-                }
-            }
-
+            excelsheets = workBook.Worksheets;
+            countExcelSheets = excelsheets.Count;
+            cmd = new SqlCommand();
         }
-
-        private void cellsMerge(Excel.Range range/*, string start, string end*/)
+        public void SetSheet(int NmbWorksheet, string SheetName)
         {
-            /*Excel.Range range;
-            range = (Excel.Range)sheet.get_Range(start, end).Cells;*/
-            range.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            range.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+            if (countExcelSheets < NmbWorksheet)
+            {
+                excelApp.SheetsInNewWorkbook = NmbWorksheet;
+            }
+            sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(NmbWorksheet);
+            sheet.Name = SheetName;
+        }
+        public Excel.Range GetRange(string CellFrom, string CellTo)
+        {
+            return sheet.get_Range(CellFrom, CellTo).Cells;
+        }
+        public Excel.Range GetRange(string CellFromTo)
+        {
+            return sheet.get_Range(CellFromTo).Cells;
+        }
+        public void SetTitle(string CellFrom, string CellTo)
+        {
+            range = GetRange(CellFrom, CellTo);
+            range.HorizontalAlignment = Excel.Constants.xlCenter;
+            range.VerticalAlignment = Excel.Constants.xlCenter;
+            range.Font.Bold = true;
+            range.Merge(Type.Missing);
+        }
+        public void MergeCells(string CellFrom, string CellTo)
+        {
+            range = GetRange(CellFrom, CellTo);
+            range.HorizontalAlignment = Excel.Constants.xlCenter;
+            range.VerticalAlignment = Excel.Constants.xlCenter;
             range.WrapText = true; // перенос текста в ячейках
             range.Borders.ColorIndex = 0;
-            range.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            range.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
+            range.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+            range.Borders.Weight = Excel.XlBorderWeight.xlThin;
             range.Merge(Type.Missing);
         }
 
-
-        private void workingPark() // формирование таблицы по рабочему парку
+        public void SetCellValue(int CellFrom, int CellTo, string Value)
         {
-            cmd = new SqlCommand();
+            sheet.Cells[CellFrom, CellTo] = Value;
+        }
+        public void SetCellValue(int CellFrom, int CellTo, int Value)
+        {
+            sheet.Cells[CellFrom, CellTo] = Value;
+        }
+        public void SetCellValue(int CellFrom, int CellTo, float Value)
+        {
+            sheet.Cells[CellFrom, CellTo] = Value;
+        }
+        public void SetCellValue(int CellFrom, int CellTo, double Value)
+        {
+            sheet.Cells[CellFrom, CellTo] = Value;
+        }
 
-            int listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
-            string stationName;
+        public void SetRowHeight(int RowNmb, int Value)
+        {
+            sheet.Rows[RowNmb].RowHeight = Value;
+        }
+        public void SetColumnWidth(int ColNmb, int Value)
+        {
+            sheet.Columns[ColNmb].ColumnWidth = Value;
+        }
+        public void ExecuteSql(string _sql)
+        {
+            sql = _sql;
+            cmd.Connection = conn;
+            cmd.CommandText = sql;
+        }
 
-            Excel.Application excelApp;
-            Excel.Workbook workBook;
-            Excel.Worksheet sheet;
-            Excel.Range title;
-            Excel.Range range;
-            Excel.Range valuesTable;
+        public void SaveDocument(string DocumentName)
+        {
+            SaveFileDialog fileDialog = new SaveFileDialog();
+            fileDialog.FileName = DocumentName;
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                excelApp.Application.ActiveWorkbook.SaveAs(
+                    fileDialog.FileName,
+                    Type.Missing,
+                    Type.Missing,
+                    Type.Missing,
+                    Type.Missing,
+                    Type.Missing,
+                    Excel.XlSaveAsAccessMode.xlShared,
+                    Type.Missing,
+                    Type.Missing,
+                    Type.Missing,
+                    Type.Missing,
+                    Type.Missing);
 
-            //--------------------------------------------------------------------------
+                if (MessageBox.Show("Файл успешно сохранен!\n" +
+                    "\nОткрыть этот файл?", "Сообщение", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    excelApp.Visible = true;
+                }
+                else
+                {
+                    excelApp.Application.ActiveWorkbook.Close(true, Type.Missing, Type.Missing);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Файл не был сохранен...");
+            }
+        }
 
-            excelApp = new Microsoft.Office.Interop.Excel.Application();
-            workBook = excelApp.Workbooks.Add(Type.Missing);
-            sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(1);
-            excelApp.SheetsInNewWorkbook = 1;
-            excelApp.DisplayAlerts = false;
-            sheet.Name = "Рабочий парк";
+        public void CreateCarcass(string name)
+        {
+            SetTitle("A1", "K1");
 
-            title = (Excel.Range)sheet.get_Range("A1", "K1").Cells;
-            title.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            title.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            title.Font.Bold = true;
-            title.Merge(Type.Missing);
+            MergeCells("A3", "A7");
+            MergeCells("B3", "B7");
+            MergeCells("C3", "K4");
+            MergeCells("C5", "C7");
+            MergeCells("C5", "C7");
+            MergeCells("D5", "D7");
+            MergeCells("E5", "E7");
+            MergeCells("F5", "F7");
+            MergeCells("G5", "G7");
+            MergeCells("G5", "G7");
+            MergeCells("H5", "K5");
+            MergeCells("H6", "H7");
+            MergeCells("I6", "I7");
+            MergeCells("J6", "J7");
+            MergeCells("K6", "K7");
 
-            range = (Excel.Range)sheet.get_Range("A3", "A7").Cells;
-            cellsMerge(range);
+            SetCellValue(1, 1, "Переписной лист №");
+            SetCellValue(3, 1, "№ листа");
+            SetCellValue(3, 2, "Всего преписано вагонов");
+            SetCellValue(3, 3, name);
+            SetCellValue(5, 3, "КР-20");
+            SetCellValue(5, 4, "ПЛ-40");
+            SetCellValue(5, 5, "ПВ-60");
+            SetCellValue(5, 6, "ЦС-70");
+            SetCellValue(5, 7, "ПР-90");
+            SetCellValue(5, 8, "в т.ч.");
+            SetCellValue(6, 8, "ЦМВ-93");
+            SetCellValue(6, 9, "ФТ-94");
+            SetCellValue(6, 10, "ЗРВ-95");
+            SetCellValue(6, 11, "МВЗ-95");
 
-            //cellsMerge("B3", "B7");
-            range = (Excel.Range)sheet.get_Range("B3", "B7").Cells;
-            cellsMerge(range);
-            //cellsMerge("C3", "K4");
-            range = (Excel.Range)sheet.get_Range("C3", "K4").Cells;
-            cellsMerge(range);
-
-            //cellsMerge("C5", "C7");
-            range = (Excel.Range)sheet.get_Range("C5", "C7").Cells;
-            cellsMerge(range);
-            //cellsMerge("D5", "D7");
-            range = (Excel.Range)sheet.get_Range("D5", "D7").Cells;
-            cellsMerge(range);
-            //cellsMerge("E5", "E7");
-            range = (Excel.Range)sheet.get_Range("E5", "E7").Cells;
-            cellsMerge(range);
-            //cellsMerge("F5", "F7");
-            range = (Excel.Range)sheet.get_Range("F5", "F7").Cells;
-            cellsMerge(range);
-            //cellsMerge("G5", "G7");
-            range = (Excel.Range)sheet.get_Range("G5", "G7").Cells;
-            cellsMerge(range);
-
-            //cellsMerge("H5", "K5");
-            range = (Excel.Range)sheet.get_Range("H5", "K5").Cells;
-            cellsMerge(range);
-            //cellsMerge("H6", "H7");
-            range = (Excel.Range)sheet.get_Range("H6", "H7").Cells;
-            cellsMerge(range);
-            //cellsMerge("I6", "I7");
-            range = (Excel.Range)sheet.get_Range("I6", "I7").Cells;
-            cellsMerge(range);
-            //cellsMerge("J6", "J7");
-            range = (Excel.Range)sheet.get_Range("J6", "J7").Cells;
-            cellsMerge(range);
-            //cellsMerge("K6", "K7");
-            range = (Excel.Range)sheet.get_Range("K6", "K7").Cells;
-            cellsMerge(range);
-
-            /*valuesTable = (Excel.Range)sheet.get_Range("A8", "K25").Cells;
-            valuesTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            valuesTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            valuesTable.WrapText = true; // перенос текста в ячейках
-            valuesTable.Borders.ColorIndex = 0;
-            valuesTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            valuesTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;*/
-
-            sheet.Cells[1, 1] = "Переписной лист №"; ///////////////////////////////////////////////////////////
-            sheet.Cells[3, 1] = "№ листа";
-            sheet.Cells[3, 2] = "Всего преписано вагонов";
-            sheet.Cells[3, 3] = "Рабочий парк всего";
-            sheet.Cells[5, 3] = "КР-20";
-            sheet.Cells[5, 4] = "ПЛ-40";
-            sheet.Cells[5, 5] = "ПВ-60";
-            sheet.Cells[5, 6] = "ЦС-70";
-            sheet.Cells[5, 7] = "ПР-90";
-            sheet.Cells[5, 8] = "в т.ч.";
-            sheet.Cells[6, 8] = "ЦМВ-93";
-            sheet.Cells[6, 9] = "ФТ-94";
-            sheet.Cells[6, 10] = "ЗРВ-95";
-            sheet.Cells[6, 11] = "МВЗ-95";
-
-
-            range = (Excel.Range)sheet.get_Range("A25", "K25").Cells;
+            range = GetRange("A25", "K25");
             range.Font.Bold = true;
 
             sheet.Rows.RowHeight = 25;
-            sheet.Rows[1].RowHeight = 40;
-            sheet.Rows[3].RowHeight = 10;
-            sheet.Rows[4].RowHeight = 10;
-            sheet.Rows[5].RowHeight = 15;
-            sheet.Rows[6].RowHeight = 15;
-            sheet.Rows[7].RowHeight = 15;
-            sheet.Columns[1].ColumnWidth = 6;
-            sheet.Columns[2].ColumnWidth = 10;
-            sheet.Columns[3].ColumnWidth = 7;
-            sheet.Columns[4].ColumnWidth = 7;
-            sheet.Columns[5].ColumnWidth = 7;
-            sheet.Columns[6].ColumnWidth = 7;
-            sheet.Columns[7].ColumnWidth = 7;
-            sheet.Columns[8].ColumnWidth = 8;
-            sheet.Columns[9].ColumnWidth = 8;
-            sheet.Columns[10].ColumnWidth = 8;
-            sheet.Columns[11].ColumnWidth = 8;
+            SetRowHeight(1, 40);
+            SetRowHeight(3, 10);
+            SetRowHeight(4, 10);
+            SetRowHeight(5, 15);
+            SetRowHeight(6, 15);
+            SetRowHeight(7, 15);
 
-            sql = "SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE ccl.IS_WORKING=1 AND st.ESR = 480403" +
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO";
+            SetColumnWidth(1, 6);
+            SetColumnWidth(2, 10);
+            SetColumnWidth(3, 7);
+            SetColumnWidth(4, 7);
+            SetColumnWidth(5, 7);
+            SetColumnWidth(6, 7);
+            SetColumnWidth(7, 7);
+            SetColumnWidth(8, 8);
+            SetColumnWidth(9, 8);
+            SetColumnWidth(10, 8);
+            SetColumnWidth(11, 8);
+        }
 
-            cmd.Connection = conn;
-            cmd.CommandText = sql;
-
+        public void FillCarcass()
+        {
+            string listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
+            string stationName;
             using (DbDataReader reader = cmd.ExecuteReader())
             {
                 int idRec = 0;
                 Excel.Range rng;
-                string fname = "";
                 if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
                         idRec++;
-                        ESR = Convert.ToInt32(reader.GetValue(0));
+
+                        ESR = reader.GetValue(0).ToString();
                         stationName = reader.GetValue(1).ToString();
-                        listNO = Convert.ToInt32(reader.GetValue(2));
-                        KR20 = Convert.ToInt32(reader.GetValue(3));
-                        PL40 = Convert.ToInt32(reader.GetValue(4));
-                        PV60 = Convert.ToInt32(reader.GetValue(5));
-                        CS70 = Convert.ToInt32(reader.GetValue(6));
-                        PR90 = Convert.ToInt32(reader.GetValue(7));
-                        CMV93 = Convert.ToInt32(reader.GetValue(8));
-                        FT94 = Convert.ToInt32(reader.GetValue(9));
-                        ZRV95 = Convert.ToInt32(reader.GetValue(10));
-                        MVZ93 = Convert.ToInt32(reader.GetValue(11));
+                        listNO = reader.GetValue(2).ToString();
+                        KR20 = reader.GetValue(3).ToString();
+                        PL40 = reader.GetValue(4).ToString();
+                        PV60 = reader.GetValue(5).ToString();
+                        CS70 = reader.GetValue(6).ToString();
+                        PR90 = reader.GetValue(7).ToString();
+                        CMV93 = reader.GetValue(8).ToString();
+                        FT94 = reader.GetValue(9).ToString();
+                        ZRV95 = reader.GetValue(10).ToString();
+                        MVZ93 = reader.GetValue(11).ToString();
 
                         fname = "Итоги переписи по станции " + stationName + " (" + ESR + ").xlsx";
 
-                        sheet.Cells[1, 1] = "Итоги переписи по станции " + stationName + " (" + ESR + ")";
-                        sheet.Cells[7 + idRec, 1] = listNO;
-                        sheet.Cells[7 + idRec, 3] = KR20;
-                        sheet.Cells[7 + idRec, 4] = PL40;
-                        sheet.Cells[7 + idRec, 5] = PV60;
-                        sheet.Cells[7 + idRec, 6] = CS70;
-                        sheet.Cells[7 + idRec, 7] = PR90;
-                        sheet.Cells[7 + idRec, 8] = CMV93;
-                        sheet.Cells[7 + idRec, 9] = FT94;
-                        sheet.Cells[7 + idRec, 10] = ZRV95;
-                        sheet.Cells[7 + idRec, 11] = MVZ93;
+                        SetCellValue(1, 1, "Итоги переписи по станции " + stationName + " (" + ESR + ")");
+                        SetCellValue(7 + idRec, 1, listNO);
+                        SetCellValue(7 + idRec, 3, KR20);
+                        SetCellValue(7 + idRec, 4, PL40);
+                        SetCellValue(7 + idRec, 5, PV60);
+                        SetCellValue(7 + idRec, 6, CS70);
+                        SetCellValue(7 + idRec, 7, PR90);
+                        SetCellValue(7 + idRec, 8, CMV93);
+                        SetCellValue(7 + idRec, 9, FT94);
+                        SetCellValue(7 + idRec, 10, ZRV95);
+                        SetCellValue(7 + idRec, 11, MVZ93);
 
-                        rng = (Excel.Range)sheet.get_Range("C" + (7 + idRec).ToString() + ":" + "K" + (7 + idRec).ToString()).Cells;
-                        sheet.Cells[7 + idRec, 2] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                        rng = GetRange("C" + (7 + idRec).ToString() + ":" + "K" + (7 + idRec).ToString());
+                        SetCellValue(7 + idRec, 2, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
                     }
 
-                    valuesTable = (Excel.Range)sheet.get_Range("A8", "K" + (idRec + 8).ToString()).Cells;
-                    valuesTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-                    valuesTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-                    valuesTable.WrapText = true; // перенос текста в ячейках
-                    valuesTable.Borders.ColorIndex = 0;
-                    valuesTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-                    valuesTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-                    sheet.Cells[idRec + 8, 1] = "Всего";
+                    range = GetRange("A8", "K" + (idRec + 8).ToString());
+                    range.HorizontalAlignment = Excel.Constants.xlCenter;
+                    range.VerticalAlignment = Excel.Constants.xlCenter;
+                    range.WrapText = true; // перенос текста в ячейках
+                    range.Borders.ColorIndex = 0;
+                    range.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+                    range.Borders.Weight = Excel.XlBorderWeight.xlThin;
+                    SetCellValue(idRec + 8, 1, "Всего");
 
+                    rng = GetRange("B8:B" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 2, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("B8:B" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 2] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                    rng = GetRange("C8:C" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 3, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек      
 
-                    rng = (Excel.Range)sheet.get_Range("C8:C" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 3] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек      
+                    rng = GetRange("D8:D" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 4, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("D8:D" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 4] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                    rng = GetRange("E8:E" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 5, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("E8:E" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 5] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                    rng = GetRange("F8:F" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 6, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("F8:F" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 6] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                    rng = GetRange("G8:G" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 7, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("G8:G" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 7] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                    rng = GetRange("H8:H" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 8, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("H8:H" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 8] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
+                    rng = GetRange("I8:I" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 9, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
 
-                    rng = (Excel.Range)sheet.get_Range("I8:I" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 9] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("J8:J" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 10] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-                    rng = (Excel.Range)sheet.get_Range("K8:K" + (7 + idRec).ToString()).Cells;
-                    sheet.Cells[8 + idRec, 11] = excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
-
-
-                    /*//Excel.Range formulaRange = (Excel.Range)sheet.get_Range(sheet.Cells[8, 3], sheet.Cells[8, 11]);
-                    Excel.Range formulaRange = (Excel.Range)sheet.get_Range("C8", "K8").Cells;
-                    string adder = formulaRange.get_Address(1, 1, Excel.XlReferenceStyle.xlA1, Type.Missing, Type.Missing);
-
-                    //Одна ячейка как диапазон
-                    Excel.Range r = sheet.Cells[8, 2] as Excel.Range;
-                    //Задаем формулу суммы
-                    r.Formula = String.Format("=СУММ({0})", adder);*/
-
-
-                    SaveFileDialog fileDialog = new SaveFileDialog();
-                    fileDialog.FileName = fname;
-                    if (fileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        excelApp.Application.ActiveWorkbook.SaveAs(
-                            fileDialog.FileName,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Excel.XlSaveAsAccessMode.xlShared,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing);
-
-                        if (MessageBox.Show("Файл успешно сохранен!\n" +
-                            "\nОткрыть этот файл?", "Сообщение", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                        {
-                            excelApp.Visible = true;
-                        }
-                        else
-                        {
-                            excelApp.Application.ActiveWorkbook.Close(true, Type.Missing, Type.Missing);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Файл не был сохранен...");
-                    }
+                    rng = GetRange("J8:J" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 10, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
+                    rng = GetRange("K8:K" + (7 + idRec).ToString());
+                    SetCellValue(8 + idRec, 11, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
                 }
             }
+        }
 
+        public void ChangeWorkSheet(int Nmb)
+        {
+            sheet = excelsheets.get_Item(Nmb);
         }
     }
 }
