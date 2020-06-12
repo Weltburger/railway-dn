@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CensusList.cs" />
     <Compile Include="CensusResults.cs" />
     <Compile Include="DBService.cs" />
     <Compile Include="DBUtils.cs" />

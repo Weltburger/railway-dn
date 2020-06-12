@@ -62,3 +62,28 @@ C:\Users\Evgenij\Desktop\railway-ZheNioCK\bin\Debug\test_railway.pdb
 C:\Users\Evgenij\Desktop\railway-ZheNioCK\bin\Debug\Aspose.Cells.dll
 C:\Users\Evgenij\Desktop\railway-ZheNioCK\bin\Debug\Aspose.Cells.xml
 C:\Users\Evgenij\Desktop\railway-ZheNioCK\obj\Debug\Railway.csproj.CopyComplete
+H:\0Универ\(1) Практика\railway-Pakowski\bin\Debug\test_railway.exe.config
+H:\0Универ\(1) Практика\railway-Pakowski\bin\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway-Pakowski\bin\Debug\test_railway.pdb
+H:\0Универ\(1) Практика\railway-Pakowski\bin\Debug\Aspose.Cells.dll
+H:\0Универ\(1) Практика\railway-Pakowski\bin\Debug\Aspose.Cells.xml
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\Railway.csprojAssemblyReference.cache
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\test_railway.Form1.resources
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\test_railway.Properties.Resources.resources
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\Railway.csproj.GenerateResource.cache
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\Railway.csproj.CopyComplete
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway-Pakowski\obj\Debug\test_railway.pdb
+C:\Users\Evgenij\Desktop\railway-Pakowski\bin\Debug\test_railway.exe.config
+C:\Users\Evgenij\Desktop\railway-Pakowski\bin\Debug\test_railway.exe
+C:\Users\Evgenij\Desktop\railway-Pakowski\bin\Debug\test_railway.pdb
+C:\Users\Evgenij\Desktop\railway-Pakowski\bin\Debug\Aspose.Cells.dll
+C:\Users\Evgenij\Desktop\railway-Pakowski\bin\Debug\Aspose.Cells.xml
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\Railway.csprojAssemblyReference.cache
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\test_railway.Form1.resources
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\test_railway.Properties.Resources.resources
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\Railway.csproj.GenerateResource.cache
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\Railway.csproj.CoreCompileInputs.cache
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\Railway.csproj.CopyComplete
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\test_railway.exe
+C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\test_railway.pdb
