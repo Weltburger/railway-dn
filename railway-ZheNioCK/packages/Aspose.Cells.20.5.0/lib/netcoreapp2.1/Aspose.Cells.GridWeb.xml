@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<doc>
+  <assembly>
+    <name>Aspose.Cells.GridWeb</name>
+  </assembly>
+  <members>
+    <member name="T:Aspose.Cells.GridWeb.Data.GridCustomServerValidation">
+      <summary>
+            the interface you need to implement when use server side validation.
+             CustomServerFunction.
+            </summary>
+    </member>
+    <!-- Badly formed XML comment ignored for member "T:Aspose.Cells.GridWeb.Data.WebTableRow" -->
+    <member name="T:Aspose.Cells.GridWeb.Data.NamespaceDoc">
+      <summary>
+            The namespace of basic data represented classes of GridWeb.
+            </summary>
+    </member>
+    <member name="T:Aspose.Cells.GridWeb.NamespaceDoc">
+      <summary>
+            The basic namespace of GridWeb.
+            </summary>
+    </member>
+    <member name="T:Aspose.Cells.GridWeb.Design.NamespaceDoc">
+      <summary>
+            The namespace of basic designer represented classes of GridWeb.
+            </summary>
+    </member>
+  </members>
+</doc>
