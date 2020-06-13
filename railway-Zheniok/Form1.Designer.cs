@@ -36,15 +36,15 @@
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lists = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.stations_2 = new System.Windows.Forms.ListView();
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.button3 = new System.Windows.Forms.Button();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.stations_2 = new System.Windows.Forms.ListView();
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
@@ -126,6 +126,38 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Итоги переписи по станциям";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(17, 26);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(49, 13);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Станция";
+            // 
+            // stations_2
+            // 
+            this.stations_2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader3,
+            this.columnHeader4});
+            this.stations_2.HideSelection = false;
+            this.stations_2.Location = new System.Drawing.Point(19, 42);
+            this.stations_2.MultiSelect = false;
+            this.stations_2.Name = "stations_2";
+            this.stations_2.Size = new System.Drawing.Size(190, 112);
+            this.stations_2.TabIndex = 9;
+            this.stations_2.UseCompatibleStateImageBehavior = false;
+            this.stations_2.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.stations_2_ItemSelectionChanged);
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Станция";
+            this.columnHeader3.Width = 100;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "ЕСР";
+            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(20, 255);
@@ -180,37 +212,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Параметры для переписного листа";
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(17, 26);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(49, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Станция";
-            // 
-            // stations_2
-            // 
-            this.stations_2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader3,
-            this.columnHeader4});
-            this.stations_2.HideSelection = false;
-            this.stations_2.Location = new System.Drawing.Point(19, 42);
-            this.stations_2.MultiSelect = false;
-            this.stations_2.Name = "stations_2";
-            this.stations_2.Size = new System.Drawing.Size(190, 112);
-            this.stations_2.TabIndex = 9;
-            this.stations_2.UseCompatibleStateImageBehavior = false;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "Станция";
-            this.columnHeader3.Width = 100;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "ЕСР";
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -236,7 +237,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(751, 496);
+            this.ClientSize = new System.Drawing.Size(491, 363);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.groupBox2);

@@ -141,7 +141,7 @@ namespace test_railway
             }
             else if (radioButton2.Checked)
             {
-                workingPark();
+                censusResults.stillWorking();
             }
             else if (radioButton3.Checked)
             {
@@ -698,6 +698,11 @@ namespace test_railway
                 }
             }
 
+        }
+
+        private void stations_2_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            GlobalData.stationSelected = Convert.ToInt32(stations.Items[e.ItemIndex].SubItems[1].Text);
         }
     }
 }

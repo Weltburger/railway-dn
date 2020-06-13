@@ -94,7 +94,7 @@ namespace test_railway
                 "ADM_CODE as 'Код страны-собств.', " +
                 "[OWNER] as 'Собственник', " +
                 "CASE " +
-                    "WHEN IS_LOADED = 0 THEN 'негруженный' " +
+                    "WHEN IS_LOADED = 0 THEN 'порожний' " +
                     "WHEN IS_LOADED = 1 THEN 'груженный' " +
                     "END as 'Состояние', " +
                 "CASE " +

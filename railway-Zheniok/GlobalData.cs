@@ -15,6 +15,7 @@ namespace test_railway
         public static SqlCommand cmd;
         public static Process excelProc;
 
+        public static int stationSelected;
         public static string sql;
 
         public static Excel.Worksheet sheet;

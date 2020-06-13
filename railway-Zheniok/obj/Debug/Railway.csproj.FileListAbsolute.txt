@@ -87,3 +87,15 @@ C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\Railway.csproj.CoreCompileIn
 C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\Railway.csproj.CopyComplete
 C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\test_railway.exe
 C:\Users\Evgenij\Desktop\railway-Pakowski\obj\Debug\test_railway.pdb
+H:\0Универ\(1) Практика\railway-Zheniok\bin\Debug\test_railway.exe.config
+H:\0Универ\(1) Практика\railway-Zheniok\bin\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway-Zheniok\bin\Debug\test_railway.pdb
+H:\0Универ\(1) Практика\railway-Zheniok\bin\Debug\Aspose.Cells.dll
+H:\0Универ\(1) Практика\railway-Zheniok\bin\Debug\Aspose.Cells.xml
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\Railway.csprojAssemblyReference.cache
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\test_railway.Form1.resources
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\test_railway.Properties.Resources.resources
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\Railway.csproj.GenerateResource.cache
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\Railway.csproj.CopyComplete
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\test_railway.exe
+H:\0Универ\(1) Практика\railway-Zheniok\obj\Debug\test_railway.pdb

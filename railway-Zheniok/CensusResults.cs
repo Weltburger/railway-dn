@@ -13,6 +13,12 @@ namespace test_railway
 {
     class CensusResults
     {
+
+        private enum reportType 
+        {
+            Рабочий_парк, Нерабочий_парк
+        }
+
         int idRec = 0, listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
         string stationName;
 
@@ -125,7 +131,7 @@ namespace test_railway
                 "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
                 "FROM CAR_CENSUS_LISTS ccl " +
                 "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE st.ESR = 480403 " +
+                "WHERE st.ESR = " + GlobalData.stationSelected + " " +
                 "GROUP BY st.ESR, st.NAME, ccl.LIST_NO";
 
 
@@ -259,20 +265,34 @@ namespace test_railway
             GlobalData.workBook = GlobalData.excelApp.Workbooks.Add(Type.Missing);
             GlobalData.excelApp.DisplayAlerts = false;
 
-            CreateResultTable("Всего НРП", true, 0, 1);
-            CreateResultTable("Неисправно", false, 1, 2);
-            CreateResultTable("Резерв", false, 2, 3);
-            CreateResultTable("ДЛЗО", false, 3, 4);
-            CreateResultTable("СТН", false, 4, 5);
-            CreateResultTable("Поврежден по акту ВУ-25", false, 5, 6);
+            CreateResultTable(reportType.Нерабочий_парк, "Всего НРП", true, 0, 1, GlobalData.stationSelected);
+            CreateResultTable(reportType.Нерабочий_парк, "Неисправно", false, 1, 2, GlobalData.stationSelected);
+            CreateResultTable(reportType.Нерабочий_парк, "Резерв", false, 2, 3, GlobalData.stationSelected);
+            CreateResultTable(reportType.Нерабочий_парк, "ДЛЗО", false, 3, 4, GlobalData.stationSelected);
+            CreateResultTable(reportType.Нерабочий_парк, "СТН", false, 4, 5, GlobalData.stationSelected);
+            CreateResultTable(reportType.Нерабочий_парк, "Поврежден по акту ВУ-25", false, 5, 6, GlobalData.stationSelected);
 
-            save();
+            save("Нерабочий парк");
             
             //GlobalData.excelApp.Workbooks.Close();
             //GlobalData.excelApp.Quit();
         }
 
-        private void CreateResultTable(string name, bool generalTable, int state, int sheetNum)
+        public void stillWorking()
+        {
+            GlobalData.excelApp = new Excel.Application();
+            GlobalData.excelApp.SheetsInNewWorkbook = 3;
+            GlobalData.workBook = GlobalData.excelApp.Workbooks.Add(Type.Missing);
+            GlobalData.excelApp.DisplayAlerts = false;
+
+            CreateResultTable(reportType.Рабочий_парк, "Рабочий парк всего", true, 0, 1, GlobalData.stationSelected);
+            CreateResultTable(reportType.Рабочий_парк, "Груженых", false, 1, 2, GlobalData.stationSelected);
+            CreateResultTable(reportType.Рабочий_парк, "Порожних", false, 0, 3, GlobalData.stationSelected);
+
+            save("Рабочий парк");
+        }
+
+        private void CreateResultTable(reportType type, string name, bool generalTable, int state, int sheetNum, int stationSelected)
         {
             GlobalData.excelProc = Process.GetProcessesByName("EXCEL").Last();
             GlobalData.sheet = (Excel.Worksheet)GlobalData.excelApp.Worksheets.get_Item(sheetNum);
@@ -357,40 +377,96 @@ namespace test_railway
                 GlobalData.sheet.Columns[11].ColumnWidth = 8;
             }
 
-            if (generalTable == false)
+            if (type == reportType.Нерабочий_парк)
             {
-                // запрос на создание таблицы
-                GlobalData.sql = "SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                    "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                    "FROM CAR_CENSUS_LISTS ccl " +
-                    "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                    "WHERE ccl.IS_WORKING = 0 AND ccl.NON_WORKING_STATE = " + state.ToString() + " AND st.ESR = 480403 " +
-                    "GROUP BY st.ESR, st.NAME, ccl.LIST_NO";
+                if (generalTable == false)
+                {
+                    GlobalData.sql = "SELECT DISTINCT " +
+                            "st.ESR, " +
+                            "st.[NAME], " +
+                            "ccl.LIST_NO, " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"КР -20\", " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ПЛ -40\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ПВ-60\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ЦС -70\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ПР -90\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ЦМВ -93\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ФТ -94\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"ЗРВ -95\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + state.ToString() + ")  AS \"МВЗ -92\" " +
+                            "FROM " +
+                            "CAR_CENSUS_LISTS ccl " +
+                            "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                            "WHERE " +
+                            "st.ESR = " + stationSelected + "";
+                    // запрос на создание таблицы
+                }
+                else
+                {
+                    GlobalData.sql = "SELECT DISTINCT " +
+                                "st.ESR, " +
+                                "st.[NAME], " +
+                                "ccl.LIST_NO, " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"КР -20\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ПЛ -40\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ПВ-60\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ЦС -70\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ПР -90\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ЦМВ -93\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ФТ -94\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ЗРВ -95\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"МВЗ -92\" " +
+                                "FROM " +
+                                "CAR_CENSUS_LISTS ccl " +
+                                "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                                "WHERE " +
+                                "st.ESR = " + stationSelected + "";
+                }
             }
-            else 
+            else if (type == reportType.Рабочий_парк)
             {
-                GlobalData.sql = "SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                    "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                    "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                    "FROM CAR_CENSUS_LISTS ccl " +
-                    "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                    "WHERE ccl.IS_WORKING = 0 AND st.ESR = 480403 " +
-                    "GROUP BY st.ESR, st.NAME, ccl.LIST_NO";
+                if (generalTable == false)
+                {
+                    GlobalData.sql = "SELECT DISTINCT " +
+                            "st.ESR, " +
+                            "st.[NAME], " +
+                            "ccl.LIST_NO, " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"КР -20\", " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ПЛ -40\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ПВ-60\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ЦС -70\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ПР -90\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ЦМВ -93\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ФТ -94\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"ЗРВ -95\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + state.ToString() + ")  AS \"МВЗ -92\" " +
+                            "FROM " +
+                            "CAR_CENSUS_LISTS ccl " +
+                            "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                            "WHERE " +
+                            "st.ESR = " + stationSelected + "";
+                }
+                else
+                {
+                    GlobalData.sql = "SELECT DISTINCT " +
+                                "st.ESR, " +
+                                "st.[NAME], " +
+                                "ccl.LIST_NO, " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"КР -20\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ПЛ -40\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ПВ-60\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ЦС -70\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ПР -90\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ЦМВ -93\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ФТ -94\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ЗРВ -95\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"МВЗ -92\" " +
+                                "FROM " +
+                                "CAR_CENSUS_LISTS ccl " +
+                                "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                                "WHERE " +
+                                "st.ESR = " + stationSelected + "";
+                }
             }
 
             GlobalData.cmd.Connection = GlobalData.conn;
@@ -479,14 +555,31 @@ namespace test_railway
                     GlobalData.sheet.Cells[8 + idRec, 11] = GlobalData.excelApp.WorksheetFunction.Sum(rng); //вычисляем сумму ячеек
 
                 }
+                else
+                {
+                    /*GlobalData.sql = "SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
+                    "FROM CAR_CENSUS_LISTS ccl " +
+                    "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                    "WHERE ccl.IS_WORKING = 0 AND st.ESR = 480403 " +
+                    "GROUP BY st.ESR, st.NAME, ccl.LIST_NO";
+
+                    GlobalData.cmd.Connection = GlobalData.conn;
+                    GlobalData.cmd.CommandText = GlobalData.sql;
+
+                    using (DbDataReader rdr = GlobalData.cmd.ExecuteReader())
+                    {
+
+                    }
+                    MessageBox.Show("ass sheet");*/
+                }
             }
         }
 
-        private void save()
+        private void save(string type)
         {
             // сохранение файла
             SaveFileDialog fileDialog = new SaveFileDialog();
-            fileDialog.FileName = "Итоги переписи по станции " + stationName + " (" + ESR.ToString() + ").xlsx";
+            fileDialog.FileName = "Итоги переписи по станции " + stationName + " (" + ESR.ToString() + ") " + type + ".xlsx";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 GlobalData.excelApp.Application.ActiveWorkbook.SaveAs(
