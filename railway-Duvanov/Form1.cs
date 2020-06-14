@@ -4,9 +4,7 @@ using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.Data.Common;
 using Excel = Microsoft.Office.Interop.Excel;
-using System.IO;
-using Aspose.Cells.Drawing;
-using System.Collections;
+using System.Drawing;
 
 namespace test_railway
 {
@@ -30,212 +28,169 @@ namespace test_railway
         string workState;
 
         string esrStation;
-        string listNum;
-
-        Excel.Application excelApp;//
-        Excel.Workbook workBook;//
-        Excel.Worksheet sheet;//
-        Excel.Range title;//
-        Excel.Range columnsTable;//
-        Excel.Range valuesTable;//
+        Excel.Application excelApp;
+        Excel.Range valuesTable;
         ReportResults rptres;
         public Form1()
         {
             InitializeComponent();
             excelApp = new Excel.Application();
-            /*excelApp = new Microsoft.Office.Interop.Excel.Application();
-            workBook = excelApp.Workbooks.Add(Type.Missing);
-            sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(1);
-            excelApp.SheetsInNewWorkbook = 1;
-            excelApp.DisplayAlerts = false;
-            sheet.Name = "Отчет";//
-
-            title = (Excel.Range)sheet.get_Range("A1", "J1").Cells;
-            title.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            title.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            title.Font.Bold = true;
-            title.Merge(Type.Missing);//
-
-            columnsTable = (Excel.Range)sheet.get_Range("A2", "J2").Cells;
-            columnsTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            columnsTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-            columnsTable.WrapText = true; // перенос текста в ячейках
-            columnsTable.Borders.ColorIndex = 0;
-            columnsTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-            columnsTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-
-            sheet.Cells[1, 1] = "Переписной лист №";
-            sheet.Cells[2, 1] = "№ п/п";
-            sheet.Cells[2, 2] = "Номер вагона";
-            sheet.Cells[2, 3] = "Год постройки";
-            sheet.Cells[2, 4] = "Род вагона";
-            sheet.Cells[2, 5] = "Дислокация";
-            sheet.Cells[2, 6] = "Код страны-собств.";
-            sheet.Cells[2, 7] = "Собственник вагона";
-            sheet.Cells[2, 8] = "Состояние";
-            sheet.Cells[2, 9] = "Парк";
-            sheet.Cells[2, 10] = "Категория НРП";
-
-            sheet.Rows.RowHeight = 25;
-            sheet.Rows[1].RowHeight = 40;
-            sheet.Rows[2].RowHeight = 50;
-            sheet.Columns[1].ColumnWidth = 4;
-            sheet.Columns[2].ColumnWidth = 9;
-            sheet.Columns[3].ColumnWidth = 11;
-            sheet.Columns[4].ColumnWidth = 7;
-            sheet.Columns[5].ColumnWidth = 13;
-            sheet.Columns[6].ColumnWidth = 8;
-            sheet.Columns[7].ColumnWidth = 14;
-            sheet.Columns[8].ColumnWidth = 14;
-            sheet.Columns[9].ColumnWidth = 12;
-            sheet.Columns[10].ColumnWidth = 14;
-            */
         }
-
-        private void Types() // формирование таблицы по родам вагона
+        private void Form1_Load(object sender, EventArgs e)
         {
-            string ESR_SQL = "480403";
-            //int listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
-
-            excelApp.Worksheets.get_Item(1);
-            rptres.SetSheet(1, "По родам вагона");
-            rptres.CreateCarcass("По родам вагона");
-
-            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE st.ESR = " + ESR_SQL +
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
-
-            rptres.FillCarcass();
-
-            rptres.SaveDocument(rptres.fname);
-        }
-        private void WorkingPark() // формирование таблицы по рабочему парку
-        {
-            string ESR_SQL = "480403";
-
-            excelApp.Worksheets.get_Item(1);
-            rptres.SetSheet(1, "Рабочий парк");
-            rptres.CreateCarcass("Рабочий парк");
-
-            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE ccl.IS_WORKING=1 AND st.ESR = " + ESR_SQL +
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
-
-            rptres.FillCarcass();
-
-            excelApp.Worksheets.get_Item(2);
-
-            rptres.SetSheet(2, "Груженых");
-            rptres.CreateCarcass("Груженых");
-
-            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE ccl.IS_WORKING=1 AND ccl.IS_LOADED=1 AND st.ESR = " + ESR_SQL +
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
-
-            rptres.FillCarcass();
-
-            excelApp.Worksheets.get_Item(3);
-
-            rptres.SetSheet(3, "Порожних");
-            rptres.CreateCarcass("Порожних");
-
-            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE ccl.IS_WORKING=1  AND ccl.IS_LOADED=0 AND st.ESR = " + ESR_SQL +
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
-
-            rptres.FillCarcass();
-
-            rptres.SaveDocument(rptres.fname);
-        }
-
-        private void NonWorkingPark(){
-            string ESR_SQL = "480403";
-
-            excelApp.Worksheets.get_Item(1);
-            rptres.SetSheet(1, "Не рабочий парк");
-            rptres.CreateCarcass("Не рабочий парк");
-
-            rptres.ExecuteSql("SELECT st.ESR, st.[NAME], ccl.LIST_NO," +
-                "COUNT(CASE CAR_TYPE WHEN 'КР-20' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' then CAR_TYPE END) AS \"ПЛ-40\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПВ-60' then CAR_TYPE END) AS \"ПВ-60\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦС-70' then CAR_TYPE END) AS \"ЦС-70\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ПР-90' then CAR_TYPE END) AS \"ПР-90\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' then CAR_TYPE END) AS \"ЦМВ-93\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ФТ-94' then CAR_TYPE END) AS \"ФТ-94\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' then CAR_TYPE END) AS \"ЗРВ-95\", " +
-                "COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' then CAR_TYPE END) AS \"МВЗ-92\" " +
-                "FROM CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE ccl.IS_WORKING = 0 AND ccl.NON_WORKING_STATE=1 AND st.ESR = "+ ESR_SQL+
-                "GROUP BY st.ESR, st.NAME, ccl.LIST_NO");
-
-            rptres.FillCarcass();
-
-            rptres.SaveDocument(rptres.fname);
-        }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            /*conn = DBUtils.GetDBConnection();
+            conn = DBUtils.GetDBConnection();
             conn.Open();
-
             if (conn.State == ConnectionState.Open)
             {
-                MessageBox.Show("всьо чьотка!");
+                MessageBox.Show("Успешное подключение к базе данных!");
+                label5.ForeColor = Color.Green;
+                label5.Text = "Подключена";
+                cmd = new SqlCommand();
+
+                sql = "select ESR, NAME FROM STATIONS";
+
+                cmd.Connection = conn;
+                cmd.CommandText = sql;
+
+                listView1.View = View.Details;
+                listView1.ListViewItemSorter = new ListViewColumnComparer(0);
+
+                listView2.View = View.Details;
+                listView2.ListViewItemSorter = new ListViewColumnComparer(0);
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            listView1.Columns[0].Text = "ESR";
+                            listView1.Columns[1].Text = "Название станции";
+                            listView1.Columns[1].Width = 120;
+                            string[] row = { reader.GetInt32(0).ToString(), reader.GetValue(1).ToString() };
+                            var listViewItem = new ListViewItem(row);
+                            listView1.Items.Add(listViewItem);
+
+                            listView2.Columns[0].Text = "ESR";
+                            listView2.Columns[1].Text = "Название станции";
+                            listView2.Columns[1].Width = 120;
+                            listViewItem = new ListViewItem(row);
+                            listView2.Items.Add(listViewItem);
+
+                        }
+                    }
+                }
             }
             else
             {
-                MessageBox.Show("ашыбачька...");
-            }*/
+                MessageBox.Show("Установить соединение с базой данных не удалось!");
+                label5.ForeColor = Color.Red;
+                label5.Text = "Отключена";
+            }
+        }
+        private void Types() // формирование таблицы по родам вагона
+        {
+            rptres.CreateNewWorkbook(1);
+
+            rptres.SetSheet(1, "По родам вагона");
+            rptres.CreateCarcass("По родам вагона");
+            rptres.ExSqlType(rptres.ESR);
+            rptres.FillCarcass();
+
+            rptres.SaveDocument();
+        }
+        private void WorkingPark() // формирование таблицы по рабочему парку
+        {
+            rptres.CreateNewWorkbook(3);
+
+            excelApp.Worksheets.get_Item(1);
+            rptres.SetSheet(1, "Рабочий парк");
+            rptres.CreateCarcass("Всего рабочий парк");
+            rptres.ExSQLWorkingParkResult(rptres.ESR);
+            rptres.FillCarcass();
+
+
+            excelApp.Worksheets.get_Item(2);
+            rptres.SetSheet(2, "Груженых");
+            rptres.CreateCarcass("Груженых");
+            rptres.ExSqlWorkingParkLoaded(rptres.ESR, 1);
+            rptres.FillCarcass();
+
+
+            excelApp.Worksheets.get_Item(3);
+            rptres.SetSheet(3, "Порожних");
+            rptres.CreateCarcass("Порожних");
+            rptres.ExSqlWorkingParkLoaded(rptres.ESR, 0);
+            rptres.FillCarcass();
+
+            rptres.SaveDocument();
+        }
+
+        private void NonWorkingPark(){
+            rptres.CreateNewWorkbook(6);
+
+            excelApp.Worksheets.get_Item(1);
+            rptres.SetSheet(1, "Не рабочий парк");
+            rptres.CreateCarcass("Всего НРП");
+            rptres.ExSqlNonWorkingParkResult(rptres.ESR);
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(2);
+            rptres.SetSheet(2, "Неисправных");
+            rptres.CreateCarcass("Неисправных");
+            rptres.ExSqlNonWorkingPark(rptres.ESR, 1);
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(3);
+            rptres.SetSheet(3, "Резерв");
+            rptres.CreateCarcass("Резерв");
+            rptres.ExSqlNonWorkingPark(rptres.ESR, 2);
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(4);
+            rptres.SetSheet(4, "ДЛЗО");
+            rptres.CreateCarcass("ДЛЗО");
+            rptres.ExSqlNonWorkingPark(rptres.ESR, 3);
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(5);
+            rptres.SetSheet(5, "СТН");
+            rptres.CreateCarcass("СТН");
+            rptres.ExSqlNonWorkingPark(rptres.ESR, 4);
+            rptres.FillCarcass();
+
+            excelApp.Worksheets.get_Item(6);
+            rptres.SetSheet(6, "Поврежден по акту ВУ-25");
+            rptres.CreateCarcass("Поврежден по акту ВУ-25");
+            rptres.ExSqlNonWorkingPark(rptres.ESR, 5);
+            rptres.FillCarcass();
+
+            rptres.SaveDocument();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            sql = "select st.ESR, st.NAME as 'Станция (для заголовка)', " +
+            rptres = new ReportResults(excelApp);
+            rptres.conn = conn;
+            rptres.cmd.Connection = conn;
+            if (lists.Items.Count == 0) {
+                MessageBox.Show("Не найдены листы по данной станции");
+                return;
+            }
+            if (listView1.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Выберите станцию");
+            }
+            else if (lists.Text == "") { 
+                MessageBox.Show("Выберите лист");
+            }
+            else
+            {
+                rptres.CreateNewWorkbook(1);
+                int firstIndex = listView1.SelectedIndices[0];
+                rptres.ESR = listView1.Items[firstIndex].SubItems[0].Text;
+                rptres.SetFileName(listView1.Items[firstIndex].SubItems[1].Text);
+
+                sql = "select st.ESR, st.NAME as 'Станция (для заголовка)', " +
                 "LIST_NO as 'Номер ПЛ (для заголовка)'," +
                 "CAR_NO as 'Номер вагона', " +
                 "BUILT_YEAR as 'Год постройки', " +
@@ -262,164 +217,73 @@ namespace test_railway
                 "END as 'Категория НРП'" +
                 "from CAR_CENSUS_LISTS ccl " +
                 "INNER JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
-                "WHERE st.ESR = " + esrStation + " and ccl.LIST_NO = " + listNum + "";
+                "WHERE st.ESR = " + rptres.ESR + " and ccl.LIST_NO = " + lists.Text + "";
 
-            cmd.CommandText = sql;
-
-            using (DbDataReader reader = cmd.ExecuteReader())
-            {
-                int idRec = 0;
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        idRec++;
-                        stationESR = reader.GetValue(0).ToString();
-                        stationName = reader.GetString(1);
-                        listNO = Convert.ToInt32(reader.GetValue(2));
-                        carNO = Convert.ToInt64(reader.GetValue(3));
-                        builtYear = Convert.ToInt32(reader.GetValue(4));
-                        carType = reader.GetString(5);
-                        carLoc = reader.GetString(6);
-                        admCode = Convert.ToInt32(reader.GetValue(7));
-                        owner = reader.GetString(8);
-                        isLoaded = reader.GetString(9);
-                        isWorking = reader.GetString(10);
-                        workState = reader.GetString(11);
-
-                        sheet.Cells[1, 1] = "Переписной лист №" + listNO + " станция " + stationName + " (" + stationESR + ")";
-                        sheet.Cells[2 + idRec, 1] = idRec;
-                        sheet.Cells[2 + idRec, 2] = carNO;
-                        sheet.Cells[2 + idRec, 3] = builtYear;
-                        sheet.Cells[2 + idRec, 4] = carType;
-                        sheet.Cells[2 + idRec, 5] = carLoc;
-                        sheet.Cells[2 + idRec, 6] = admCode;
-                        sheet.Cells[2 + idRec, 7] = owner;
-                        sheet.Cells[2 + idRec, 8] = isLoaded;
-                        sheet.Cells[2 + idRec, 9] = isWorking;
-                        sheet.Cells[2 + idRec, 10] = workState;
-
-                    }
-
-                    valuesTable = (Excel.Range)sheet.get_Range("A3", "J" + (idRec + 2).ToString()).Cells;
-                    valuesTable.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-                    valuesTable.VerticalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
-                    valuesTable.WrapText = true; // перенос текста в ячейках
-                    valuesTable.Borders.ColorIndex = 0;
-                    valuesTable.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
-                    valuesTable.Borders.Weight = Microsoft.Office.Interop.Excel.XlBorderWeight.xlThin;
-
-                    // Реализовать сохранение документов по каждому номеру переписного листа - listNO
-
-                    SaveFileDialog fileDialog = new SaveFileDialog();
-                    fileDialog.FileName = "Переписной лист №" + listNO + " - станция " + stationName + " (" + stationESR + ").xlsx";
-                    if (fileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        excelApp.Application.ActiveWorkbook.SaveAs(
-                            fileDialog.FileName,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Excel.XlSaveAsAccessMode.xlShared,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing,
-                            Type.Missing);
-
-                        if (MessageBox.Show("Файл успешно сохранен!\n" +
-                            "\nОткрыть этот файл?", "Сообщение", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                        {
-                            excelApp.Visible = true;
-                        }
-                        else
-                        {
-                            excelApp.Application.ActiveWorkbook.Close(true, Type.Missing, Type.Missing);
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Файл не был сохранен...");
-                    }
-                }
-            }
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            conn = DBUtils.GetDBConnection();
-            conn.Open();
-            //rptres.conn = conn;
-            if (conn.State == ConnectionState.Open)
-            {
-                MessageBox.Show("всьо чьотка!");
-
-                cmd = new SqlCommand();
-
-                sql = "select NAME, ESR FROM STATIONS";
-
-                cmd.Connection = conn;
-                //rptres.cmd.Connection = conn;
                 cmd.CommandText = sql;
-
-                listView1.View = View.Details;
-                listView1.ListViewItemSorter = new ListViewColumnComparer(0);
 
                 using (DbDataReader reader = cmd.ExecuteReader())
                 {
+                    int idRec = 0;
                     if (reader.HasRows)
                     {
+
+                        rptres.SetCellValue(3, 1, "№ п/п");
+                        rptres.SetCellValue(3, 2, "Номер вагона");
+                        rptres.SetCellValue(3, 3, "Год постройки");
+                        rptres.SetCellValue(3, 4, "Род вагона");
+                        rptres.SetCellValue(3, 5, "Дислокация");
+                        rptres.SetCellValue(3, 6, "Код страны-собств.");
+                        rptres.SetCellValue(3, 7, "Собственник вагона");
+                        rptres.SetCellValue(3, 8, "Состояние");
+                        rptres.SetCellValue(3, 9, "Парк");
+                        rptres.SetCellValue(3, 10, "Категория НРП");
                         while (reader.Read())
                         {
-                            listView1.Items.Add(new ListViewItem(
-                                new string[] 
-                                { 
-                                    reader.GetString(0),
-                                    reader.GetValue(1).ToString()
-                                }));
+                            idRec++;
 
-                            //stations.Items.Add(reader.GetString(0) + " ("+ reader.GetValue(1).ToString() + ")");
+                            listNO = Convert.ToInt32(reader.GetValue(2));
+                            stationESR = reader.GetValue(0).ToString();
+                            stationName = reader.GetString(1);
+
+                            carNO = Convert.ToInt64(reader.GetValue(3));
+                            builtYear = Convert.ToInt32(reader.GetValue(4));
+                            carType = reader.GetString(5);
+                            carLoc = reader.GetString(6);
+                            admCode = Convert.ToInt32(reader.GetValue(7));
+                            owner = reader.GetString(8);
+                            isLoaded = reader.GetString(9);
+                            isWorking = reader.GetString(10);
+                            workState = reader.GetString(11);
+
+                            rptres.SetCellValue(1, 1, "Переписной лист №" + listNO + " станция " + stationName + " (" + stationESR + ")");
+                            rptres.SetCellValue(3 + idRec, 1, idRec);
+                            rptres.SetCellValue(3 + idRec, 2, carNO);
+                            rptres.SetCellValue(3 + idRec, 3, builtYear);
+                            rptres.SetCellValue(3 + idRec, 4, carType);
+                            rptres.SetCellValue(3 + idRec, 5, carLoc);
+                            rptres.SetCellValue(3 + idRec, 6, admCode);
+                            rptres.SetCellValue(3 + idRec, 7, owner);
+                            rptres.SetCellValue(3 + idRec, 8, isLoaded);
+                            rptres.SetCellValue(3 + idRec, 9, isWorking);
+                            rptres.SetCellValue(3 + idRec, 10, workState);
+
                         }
+
+                        valuesTable = rptres.GetRange("A3", "J" + (idRec + 3).ToString());
+                        valuesTable.HorizontalAlignment = Excel.Constants.xlCenter;
+                        valuesTable.VerticalAlignment = Excel.Constants.xlCenter;
+                        valuesTable.WrapText = true; // перенос текста в ячейках
+                        valuesTable.Borders.ColorIndex = 0;
+                        valuesTable.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+                        valuesTable.Borders.Weight = Excel.XlBorderWeight.xlThin;
+
+                        rptres.SetTitle("A1", "K1");
+
+                        rptres.SetFileName("Переписной лист по станции " + stationName + " (" + stationESR + ").xlsx");
+                        rptres.SaveDocument();
                     }
                 }
             }
-            else
-            {
-                MessageBox.Show("ашыбачька...");
-            }
-        }
-
-        private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
-        {
-            lists.Items.Clear();
-            esrStation = listView1.Items[e.ItemIndex].SubItems[1].Text;
-
-            sql = "select LIST_NO from CAR_CENSUS_LISTS ccl " +
-                "INNER JOIN STATIONS st on st.ESR = ccl.LOCATION_ESR " +
-                "where st.ESR = "+ esrStation +" " +
-                "group by LIST_NO";
-
-            cmd.Connection = conn;
-            rptres.cmd.Connection = conn;
-            cmd.CommandText = sql;
-
-            using (DbDataReader reader = cmd.ExecuteReader())
-            {
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        lists.Items.Add(reader.GetValue(0).ToString());
-                    }
-                }
-            }
-        }
-
-        private void lists_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            listNum = lists.Text;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -427,29 +291,78 @@ namespace test_railway
             rptres = new ReportResults(excelApp);
             rptres.conn = conn;
             rptres.cmd.Connection = conn;
-            if (radioButton1.Checked)
+            if (listView2.SelectedItems.Count == 0)
             {
-                Types();
+                MessageBox.Show("Выберите станцию");
             }
-            else if (radioButton2.Checked)
+            else
             {
-                WorkingPark();
-            }
-            else if (radioButton3.Checked)
-            {
-                NonWorkingPark();
+                int firstIndex = listView2.SelectedIndices[0];
+                rptres.ESR = listView2.Items[firstIndex].SubItems[0].Text;
+                string StationName = listView2.Items[firstIndex].SubItems[1].Text;
+                rptres.SetFileName("Итоги переписи по станции " + StationName + " (" + rptres.ESR + ").xlsx");
+                if (radioButton1.Checked)
+                {
+                    Types();
+                }
+                else if (radioButton2.Checked)
+                {
+                    WorkingPark();
+                }
+                else if (radioButton3.Checked)
+                {
+                    NonWorkingPark();
+                }
+                else
+                {
+                    MessageBox.Show("Выберите пункт");
+                }
             }
         }
 
+        private void listView2_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            
+            if (listView2.SelectedIndices.Count > 0)
+               esrStation = listView2.SelectedItems[0].Text;
+            else
+                esrStation = "0";
+        }
+
+        private void listView1_ItemSelectionChanged_1(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            lists.Items.Clear();
+            if (listView1.SelectedIndices.Count > 0)
+            {
+                esrStation = listView1.SelectedItems[0].Text;
+                sql = "select LIST_NO from CAR_CENSUS_LISTS ccl " +
+                    "INNER JOIN STATIONS st on st.ESR = ccl.LOCATION_ESR " +
+                    "where st.ESR = " + esrStation + " " +
+                    "group by LIST_NO";
+
+                cmd.Connection = conn;
+                cmd.CommandText = sql;
+
+                using (DbDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            lists.Items.Add(reader.GetValue(0).ToString());
+                        }
+                    }
+                }
+            }
+        }
     }
     public class ReportResults
     {
+        public string ESR;
         public Excel.Application excelApp;
         public Excel.Workbook workBook;
         public Excel.Worksheet sheet;
         public Excel.Range range;
-        public Excel.Sheets excelsheets;
-        public int countExcelSheets;
 
         public SqlCommand cmd;
         public SqlConnection conn;
@@ -459,20 +372,16 @@ namespace test_railway
         public ReportResults(Excel.Application exApp)
         {
             excelApp = exApp;
-            excelApp.SheetsInNewWorkbook = 3;
-            workBook = excelApp.Workbooks.Add(Type.Missing);
+            cmd = new SqlCommand();
+        }
+        public void CreateNewWorkbook(int countSheets) {
+            excelApp.SheetsInNewWorkbook = countSheets;
+            excelApp.Workbooks.Add(Type.Missing);
             sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(1);
             excelApp.DisplayAlerts = false;
-            excelsheets = workBook.Worksheets;
-            countExcelSheets = excelsheets.Count;
-            cmd = new SqlCommand();
         }
         public void SetSheet(int NmbWorksheet, string SheetName)
         {
-            if (countExcelSheets < NmbWorksheet)
-            {
-                excelApp.SheetsInNewWorkbook = NmbWorksheet;
-            }
             sheet = (Excel.Worksheet)excelApp.Worksheets.get_Item(NmbWorksheet);
             sheet.Name = SheetName;
         }
@@ -535,11 +444,119 @@ namespace test_railway
             cmd.Connection = conn;
             cmd.CommandText = sql;
         }
+        public void ExSqlType(string ESR_SQL) {
+            sql = "SELECT DISTINCT " +
+                    "st.ESR, " +
+                    "st.[NAME], " +
+                    "ccl.LIST_NO, " +
+                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"КР -20\", " +
+                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ПЛ -40\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ПВ-60\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ЦС -70\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ПР -90\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ЦМВ -93\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ФТ -94\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"ЗРВ -95\", " +
+                        "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO)  AS \"МВЗ -92\" " +
+                    "FROM " +
+                    "CAR_CENSUS_LISTS ccl " +
+                    "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                    "WHERE " +
+                    "st.ESR = " + ESR_SQL + "";
+            ExecuteSql(sql);
+        }
+        public void ExSqlNonWorkingPark(string ESR_SQL, int nonWorkingState) {
+            sql = "SELECT DISTINCT " +
+                            "st.ESR, " +
+                            "st.[NAME], " +
+                            "ccl.LIST_NO, " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"КР -20\", " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ПЛ -40\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ПВ-60\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ЦС -70\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ПР -90\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ЦМВ -93\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ФТ -94\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"ЗРВ -95\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0 AND ccll.NON_WORKING_STATE = " + nonWorkingState.ToString() + ")  AS \"МВЗ -92\" " +
+                            "FROM " +
+                            "CAR_CENSUS_LISTS ccl " +
+                            "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                            "WHERE " +
+                            "st.ESR = " + ESR_SQL + "";
+            ExecuteSql(sql);
+        }
+        public void ExSqlNonWorkingParkResult(string ESR_SQL)
+        {
+            sql = "SELECT DISTINCT " +
+                            "st.ESR, " +
+                            "st.[NAME], " +
+                            "ccl.LIST_NO, " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"КР -20\", " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ПЛ -40\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ПВ-60\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ЦС -70\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ПР -90\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ЦМВ -93\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ФТ -94\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"ЗРВ -95\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 0)  AS \"МВЗ -92\" " +
+                            "FROM " +
+                            "CAR_CENSUS_LISTS ccl " +
+                            "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                            "WHERE " +
+                            "st.ESR = " + ESR_SQL + "";
+            ExecuteSql(sql);
+        }
+        public void ExSqlWorkingParkLoaded(string ESR_SQL, int isLoaded)
+        {
+            sql = "SELECT DISTINCT " +
+                            "st.ESR, " +
+                            "st.[NAME], " +
+                            "ccl.LIST_NO, " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"КР -20\", " +
+                            "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ПЛ -40\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ПВ-60\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ЦС -70\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ПР -90\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ЦМВ -93\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ФТ -94\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"ЗРВ -95\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1 AND ccll.IS_LOADED = " + isLoaded.ToString() + ")  AS \"МВЗ -92\" " +
+                            "FROM " +
+                            "CAR_CENSUS_LISTS ccl " +
+                            "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                            "WHERE " +
+                            "st.ESR = " + ESR_SQL + "";
+            ExecuteSql(sql);
+        }
+        public void ExSQLWorkingParkResult(string ESR_SQL) {
+            sql = "SELECT DISTINCT " +
+                                "st.ESR, " +
+                                "st.[NAME], " +
+                                "ccl.LIST_NO, " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'КР-20' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"КР -20\", " +
+                                "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПЛ-40' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ПЛ -40\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПВ-60' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ПВ-60\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦС-70' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ЦС -70\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ПР-90' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ПР -90\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЦМВ-93' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ЦМВ -93\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ФТ-94' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ФТ -94\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'ЗРВ-95' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"ЗРВ -95\", " +
+                                    "(SELECT COUNT(CASE CAR_TYPE WHEN 'МВЗ-92' THEN CAR_TYPE END) FROM CAR_CENSUS_LISTS ccll WHERE ccl.LOCATION_ESR = ccll.LOCATION_ESR AND ccl.LIST_NO = ccll.LIST_NO AND ccll.IS_WORKING = 1)  AS \"МВЗ -92\" " +
+                                "FROM " +
+                                "CAR_CENSUS_LISTS ccl " +
+                                "JOIN STATIONS st ON st.ESR = ccl.LOCATION_ESR " +
+                                "WHERE " +
+                                "st.ESR = " + ESR_SQL + "";
+            ExecuteSql(sql);
+        }
 
-        public void SaveDocument(string DocumentName)
+        public void SaveDocument()
         {
             SaveFileDialog fileDialog = new SaveFileDialog();
-            fileDialog.FileName = DocumentName;
+            fileDialog.Filter = "Microsoft Excel (*.xlxs)|*.*";
+            fileDialog.FileName = fname;
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 excelApp.Application.ActiveWorkbook.SaveAs(
@@ -630,11 +647,13 @@ namespace test_railway
             SetColumnWidth(10, 8);
             SetColumnWidth(11, 8);
         }
-
+        public void SetFileName(string newFname) {
+            fname = "";
+            fname = newFname;
+        }
         public void FillCarcass()
         {
-            string listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR;
-            string stationName;
+            string listNO, KR20, PL40, PV60, CS70, PR90, CMV93, FT94, ZRV95, MVZ93, ESR, stationName;
             using (DbDataReader reader = cmd.ExecuteReader())
             {
                 int idRec = 0;
@@ -644,9 +663,9 @@ namespace test_railway
                     while (reader.Read())
                     {
                         idRec++;
-
                         ESR = reader.GetValue(0).ToString();
                         stationName = reader.GetValue(1).ToString();
+
                         listNO = reader.GetValue(2).ToString();
                         KR20 = reader.GetValue(3).ToString();
                         PL40 = reader.GetValue(4).ToString();
@@ -657,8 +676,6 @@ namespace test_railway
                         FT94 = reader.GetValue(9).ToString();
                         ZRV95 = reader.GetValue(10).ToString();
                         MVZ93 = reader.GetValue(11).ToString();
-
-                        fname = "Итоги переписи по станции " + stationName + " (" + ESR + ").xlsx";
 
                         SetCellValue(1, 1, "Итоги переписи по станции " + stationName + " (" + ESR + ")");
                         SetCellValue(7 + idRec, 1, listNO);
@@ -715,11 +732,6 @@ namespace test_railway
                     SetCellValue(8 + idRec, 11, excelApp.WorksheetFunction.Sum(rng)); //вычисляем сумму ячеек
                 }
             }
-        }
-
-        public void ChangeWorkSheet(int Nmb)
-        {
-            sheet = excelsheets.get_Item(Nmb);
         }
     }
 }
