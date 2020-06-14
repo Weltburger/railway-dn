@@ -222,7 +222,7 @@ namespace test_railway
 
                     // сохранение файла
                     SaveFileDialog fileDialog = new SaveFileDialog();
-                    fileDialog.FileName = "Итоги переписи по станции " + stationName + " (" + ESR.ToString() + ").xlsx";
+                    fileDialog.FileName = "Итоги переписи по станции " + stationName + " (" + ESR.ToString() + ") По родам вагона.xlsx";
                     if (fileDialog.ShowDialog() == DialogResult.OK)
                     {
                         GlobalData.excelApp.Application.ActiveWorkbook.SaveAs(
