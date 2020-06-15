@@ -135,19 +135,20 @@ namespace test_railway
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (radioButton1.Checked)
-            {
-                censusResults.CreateTypesWagones();
-            }
-            else if (radioButton2.Checked)
-            {
-                censusResults.stillWorking();
-            }
-            else if (radioButton3.Checked)
-            {
-                //censusResults = new CensusResults();
-                censusResults.NonWorking();
-            }
+            censusResults.CreateReport();
+            //if (radioButton1.Checked)
+            //{
+            //    censusResults.CreateTypesWagones();
+            //}
+            //else if (radioButton2.Checked)
+            //{
+            //    censusResults.stillWorking();
+            //}
+            //else if (radioButton3.Checked)
+            //{
+            //    //censusResults = new CensusResults();
+            //    censusResults.NonWorking();
+            //}
         }
 
 
