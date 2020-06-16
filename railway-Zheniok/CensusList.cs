@@ -148,36 +148,6 @@ namespace test_railway
                         GlobalData.sheet.Cells[2 + idRec, 8] = isLoaded;
                         GlobalData.sheet.Cells[2 + idRec, 9] = isWorking;
                         GlobalData.sheet.Cells[2 + idRec, 10] = workState;
-
-                        //MessageBox.Show((2 + idRec).ToString());
-
-                        //Индекс столбца Mng_Id в команде SQL.
-                        //int mngIdIndex = reader.GetOrdinal("Mng_Id");
-                        //long? mngId = null;
-                        //if (!reader.IsDBNull(mngIdIndex))
-                        //{
-                        //    mngId = Convert.ToInt64(reader.GetValue(mngIdIndex));
-                        //}
-                        //Console.WriteLine("--------------------");
-                        //Console.WriteLine("empIdIndex:" + empIdIndex);
-                        //Console.WriteLine("EmpId:" + empId);
-                        //Console.WriteLine("EmpNo:" + empNo);
-                        //Console.WriteLine("EmpName:" + empName);
-                        //Console.WriteLine("MngId:" + mngId);
-
-                        //MessageBox.Show(
-                        //    idRec + " " +
-                        //    station + " " +
-                        //    listNO + " " +
-                        //    carNO + " " +
-                        //    builtYear + " " +
-                        //    carType + " " +
-                        //    carLoc + " " +
-                        //    admCode + " " +
-                        //    owner + " " +
-                        //    isLoaded + " " +
-                        //    isWorking + " " +
-                        //    workState);
                     }
 
                     GlobalData.cellsValuesTable = (Excel.Range)GlobalData.sheet.get_Range("A3", "J" + (idRec + 2).ToString()).Cells;

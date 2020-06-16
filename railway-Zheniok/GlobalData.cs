@@ -47,7 +47,6 @@ namespace test_railway
             catch (Exception)
             {
                 obj = null;
-                //MessageBox.Show("Unable to release the Object " + ex.ToString());
             }
             finally
             {
