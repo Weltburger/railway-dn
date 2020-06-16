@@ -60,11 +60,6 @@ namespace test_railway
             GlobalData.sheet = (Excel.Worksheet)GlobalData.excelApp.Worksheets.get_Item(sheetNum);
             GlobalData.sheet.Name = name;
 
-            // создание разметки таблицы
-            {
-                    
-            }
-
             if (reportType == ReportType.По_родам_вагона) 
             {
                 // создание разметки таблицы
